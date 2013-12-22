@@ -28,7 +28,7 @@ This module is a XS alternative to L<Archive::Ar> that uses libarchive to read a
 
  my $ar = Archive::Ar::Libarchive->new;
  my $ar = Archive::Ar::Libarchive->new($filename);
- my $ar = Archive::Ar::Libarchive->new(*GLOB, $debug);
+ my $ar = Archive::Ar::Libarchive->new($fh, $debug);
 
 Returns a new L<Archive::AR::Libarchive> object.  Without a filename or glob, it returns an empty object.  If passed a filename as a scalar or a GLOB, it will attempt to populate from
 either of those sources.  If it fails, you will receive undef, instead of an object reference.
@@ -54,6 +54,45 @@ sub new
   }
   
   $self;
+}
+
+=head2 read
+
+FIXME
+
+=cut
+
+sub read
+{
+  my($self, $filename_or_handle) = @_;
+
+  my $ret = 0;
+  
+  if(ref $filename_or_handle eq 'GLOB')
+  {
+    $ret = $self->_read_from_callback(sub {
+      my $br = read $filename_or_handle, my $buffer, 1024;
+      (defined $br ? 0 : -30, $buffer);
+    });
+  }
+  else
+  {
+    $ret = $self->_read_from_filename($filename_or_handle);
+  }
+
+  return $ret;
+}
+
+=head2 list_files
+
+FIXME
+
+=cut
+
+sub list_files
+{
+  my $list = shift->_list_files;
+  wantarray ? @$list : $list;
 }
 
 =head2 DEBUG
