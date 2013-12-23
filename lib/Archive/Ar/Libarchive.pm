@@ -58,7 +58,13 @@ sub new
 
 =head2 read
 
-FIXME
+ $ar->read($filename);
+ $ar->read($fh);
+
+This reads a new file into the object, removing any ar archive already
+represented in the object.
+
+Returns the number of bytes read, undef on failure.
 
 =cut
 
@@ -70,9 +76,12 @@ sub read
   
   if(ref $filename_or_handle eq 'GLOB')
   {
+    my $buffer;
     $ret = $self->_read_from_callback(sub {
-      my $br = read $filename_or_handle, my $buffer, 1024;
-      (defined $br ? 0 : -30, $buffer);
+      print "here\n";
+      my $br = read $filename_or_handle, $buffer, 1024;
+      print "br = $br\n";
+      ((defined $br ? 0 : -30), \$buffer);
     });
   }
   else
@@ -80,12 +89,17 @@ sub read
     $ret = $self->_read_from_filename($filename_or_handle);
   }
 
-  return $ret;
+  return $ret || undef;
 }
 
 =head2 list_files
 
-FIXME
+ my @list = $ar->list_files;
+ my $list = $ar->list_files;
+
+This lists the files contained inside of the archive by filename, as
+an array. If called in a scalar context, returns a reference to an
+array.
 
 =cut
 

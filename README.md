@@ -30,11 +30,22 @@ should help.
 
 ## read
 
-FIXME
+    $ar->read($filename);
+    $ar->read($fh);
+
+This reads a new file into the object, removing any ar archive already
+represented in the object.
+
+Returns the number of bytes read, undef on failure.
 
 ## list\_files
 
-FIXME
+    my @list = $ar->list_files;
+    my $list = $ar->list_files;
+
+This lists the files contained inside of the archive by filename, as
+an array. If called in a scalar context, returns a reference to an
+array.
 
 ## DEBUG
 

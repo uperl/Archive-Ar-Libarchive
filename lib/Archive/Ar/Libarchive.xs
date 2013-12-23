@@ -68,7 +68,7 @@ ar_read_callback(struct archive *archive, void *cd, const void **buffer)
   count = call_sv(ar->callback, G_ARRAY);
   
   SPAGAIN;
-  
+
   sv_buffer = SvRV(POPs);
   status = SvI64(POPs);
   if(status == ARCHIVE_OK)
@@ -85,7 +85,12 @@ ar_read_callback(struct archive *archive, void *cd, const void **buffer)
   else
     return status;  
 }
-                            
+
+static int
+ar_close_callback(struct archive *archive, void *client_data)
+{
+  return ARCHIVE_OK;
+}
 
 static __LA_INT64_T
 ar_read_archive(struct archive *archive, struct ar *ar)
@@ -192,7 +197,7 @@ _read_from_callback(self, callback)
     archive_read_support_format_ar(archive);
     
     self->callback = SvREFCNT_inc(callback);
-    r = archive_read_open(archive, (void*)self, NULL, ar_read_callback, NULL);
+    r = archive_read_open(archive, (void*)self, NULL, ar_read_callback, ar_close_callback);
 
     if(r == ARCHIVE_OK || r == ARCHIVE_WARN)
     {
