@@ -257,11 +257,11 @@ _read_from_filename(self, filename)
   CODE:
     struct archive *archive;
     int r;
-
+    
     ar_reset(self);
     archive = archive_read_new();
     archive_read_support_format_ar(archive);
-
+    
     r = archive_read_open_filename(archive, filename, 1024);
     if(r == ARCHIVE_OK || r == ARCHIVE_WARN)
     {
@@ -271,12 +271,15 @@ _read_from_filename(self, filename)
     }
     else
     {
-      warn("%s", archive_error_string(archive));
+      if(self->debug)
+        warn("%s", archive_error_string(archive));
       RETVAL = 0;
     }
-
+#if ARCHIVE_VERSION_NUMBER < 3000000
+    archive_read_finish(archive);
+#else
     archive_read_free(archive);
-
+#endif
   OUTPUT:
     RETVAL
 
@@ -305,10 +308,12 @@ _read_from_callback(self, callback)
     {
       warn("%s", archive_error_string(archive));
       RETVAL = 0;
-    }
-    
+    }    
+#if ARCHIVE_VERSION_NUMBER < 3000000
+    archive_read_finish(archive);
+#else
     archive_read_free(archive);
-
+#endif
     SvREFCNT_dec(callback);
     self->callback = NULL;
   OUTPUT:
@@ -335,9 +340,12 @@ _write_to_filename(self, filename)
     if(r == ARCHIVE_OK || r == ARCHIVE_WARN)
       RETVAL = ar_write_archive(archive, self);
     else
-      RETVAL = 0;
-      
+      RETVAL = 0;    
+#if ARCHIVE_VERSION_NUMBER < 3000000
+    archive_write_finish(archive);
+#else
     archive_write_free(archive);
+#endif
   OUTPUT:
     RETVAL
 
@@ -365,8 +373,11 @@ _write_to_callback(self, callback)
       RETVAL = ar_write_archive(archive, self);
     else
       RETVAL = 0;
-    
+#if ARCHIVE_VERSION_NUMBER < 3000000
+    archive_write_finish(archive);
+#else
     archive_write_free(archive);    
+#endif
     SvREFCNT_dec(callback);
     self->callback = NULL;    
   OUTPUT:
