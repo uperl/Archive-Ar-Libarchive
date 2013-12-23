@@ -90,6 +90,37 @@ ar_read_callback(struct archive *archive, void *cd, const void **buffer)
     return status;  
 }
 
+static __LA_INT64_T
+ar_write_callback(struct archive *archive, void *cd, const void *buffer, size_t length)
+{
+  struct ar *ar = (struct ar *)cd;
+  int count;
+  __LA_INT64_T status;
+
+  printf("length = %d\n", length);
+  fflush(stdout);
+  
+  dSP;
+  ENTER;
+  SAVETMPS;
+  PUSHMARK(SP);
+  XPUSHs(sv_2mortal(newSViv(PTR2IV((void*)archive))));
+  XPUSHs(sv_2mortal(newSVpvn(buffer, length)));
+  PUTBACK;
+  
+  call_sv(ar->callback, G_SCALAR);
+  
+  SPAGAIN;
+  
+  status = SvI64(POPs);
+  
+  PUTBACK;
+  FREETMPS;
+  LEAVE;
+  
+  return status;
+}
+
 static int
 ar_close_callback(struct archive *archive, void *client_data)
 {
@@ -252,10 +283,10 @@ _read_from_callback(self, callback)
       RETVAL = 0;
     }
     
+    archive_read_free(archive);
+
     SvREFCNT_dec(callback);
     self->callback = NULL;
-
-    archive_read_free(archive);
   OUTPUT:
     RETVAL
 
@@ -268,14 +299,37 @@ _write_to_filename(self, filename)
     int r;
     
     archive = archive_write_new();
-    archive_write_set_format_ar_svr4(archive);
+    archive_write_set_format_ar_bsd(archive);
     /* FIXME: also support BSD style ar archives */
     r = archive_write_open_filename(archive, filename);
     /* FIXME: check for errors */
     
     RETVAL = ar_write_archive(archive, self);
-    
     archive_write_free(archive);
+  OUTPUT:
+    RETVAL
+
+int
+_write_to_callback(self, callback)
+    struct ar *self
+    SV *callback
+  CODE:
+    struct archive *archive;
+    int r;
+    
+    self->callback = SvREFCNT_inc(callback);
+
+    archive = archive_write_new();
+    archive_write_set_format_ar_bsd(archive);
+    /* FIXME: also support BSD style ar archives */
+    r = archive_write_open(archive, (void*)self, NULL, ar_write_callback, ar_close_callback);
+    /* FIXME: check for errors */
+    
+    RETVAL = ar_write_archive(archive, self);
+    archive_write_free(archive);
+    
+    SvREFCNT_dec(callback);
+    self->callback = NULL;    
   OUTPUT:
     RETVAL
 

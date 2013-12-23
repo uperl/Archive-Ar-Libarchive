@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 1;
+use Test::More tests => 2;
 use Archive::Ar::Libarchive;
 use File::Temp qw( tempdir );
 use File::Spec;
@@ -21,6 +21,22 @@ subtest 'write filename' => sub {
   undef $ar;
   
   check_content(Archive::Ar::Libarchive->new($fn));
+};
+
+subtest 'write string' => sub {
+  plan skip_all => 'broken';
+  plan tests => 2;
+  
+  my $content = before()->write;
+  
+  note "size = " . length $content;
+  ok defined $content, 'write';
+  
+  
+  my $ar = Archive::Ar::Libarchive->new;
+  $ar->read_memory($content);
+  
+  check_content($ar);
 };
 
 sub before

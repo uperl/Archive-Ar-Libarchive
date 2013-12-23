@@ -239,12 +239,20 @@ sub write
   my($self, $filename) = @_;
   if(defined $filename)
   {
-    return $self->_write_to_filename($filename);
+    my $status = $self->_write_to_filename($filename);
+    return unless $status;
+    return $status;
   }
   else
   {
-    # FIXME
-    die;
+    my $content = '';
+    # FIXME: doesn't work
+    my $status = $self->_write_to_callback(sub {
+      my($archive, $buffer) = @_;
+      $content .= $buffer;
+      length $buffer;
+    });
+    return $content if $status;
   }
 }
 
