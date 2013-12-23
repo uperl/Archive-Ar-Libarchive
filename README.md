@@ -170,6 +170,20 @@ The remove method takes a filenames as a list or as an arrayref, and removes
 them, one at a time, from the Archive::Ar object.  This returns the number
 of files successfully removed from the archive.
 
+## set\_output\_format\_bsd
+
+    $ar->set_output_format_bsd;
+
+Sets the output format produced by [#write](https://metacpan.org/pod/#write) to use BSD format.
+Note: this method is not available in l<Archive::Ar>.
+
+## set\_output\_format\_svr4
+
+    $ar->set_output_format_svr4;
+
+Sets the output format produced by [#write](https://metacpan.org/pod/#write) to System VR4 format.
+Note: this method is not available in l<Archive::Ar>.
+
 ## DEBUG
 
     $ar->DEBUG;

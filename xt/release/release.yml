@@ -6,6 +6,7 @@ pod_spelling_system:
     - ar
     - libarchive
     - AIX
+    - VR
 
 pod_coverage:
   # format is "Class#method" or "Class", regex allowed

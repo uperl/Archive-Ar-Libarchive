@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 2;
+use Test::More tests => 4;
 use Archive::Ar::Libarchive;
 use File::Temp qw( tempdir );
 use File::Spec;
@@ -15,7 +15,7 @@ subtest 'write filename' => sub {
   my $fn = File::Spec->catfile($dir, "libfoo.a");
   
   my $size = $ar->write($fn);
-  diag "size = $size";
+  note "size = $size";
   ok $size, 'write';
   
   undef $ar;
@@ -36,6 +36,38 @@ subtest 'write string' => sub {
   $ar->read_memory($content);
   
   check_content($ar);
+};
+
+subtest 'write bsd' => sub {
+  plan tests => 2;
+  
+  my $ar = before();
+  $ar->set_output_format_bsd;
+  my $fn = File::Spec->catfile($dir, "libfoo.a");
+  
+  my $size = $ar->write($fn);
+  note "size = $size";
+  ok $size, 'write';
+  
+  undef $ar;
+  
+  check_content(Archive::Ar::Libarchive->new($fn));
+};
+
+subtest 'write svr4' => sub {
+  plan tests => 2;
+  
+  my $ar = before();
+  $ar->set_output_format_svr4;
+  my $fn = File::Spec->catfile($dir, "libfoo.a");
+  
+  my $size = $ar->write($fn);
+  note "size = $size";
+  ok $size, 'write';
+  
+  undef $ar;
+  
+  check_content(Archive::Ar::Libarchive->new($fn));
 };
 
 sub before

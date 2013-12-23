@@ -354,6 +354,20 @@ sub remove
   $count;
 }
 
+=head2 set_output_format_bsd
+
+ $ar->set_output_format_bsd;
+
+Sets the output format produced by L<#write> to use BSD format.
+Note: this method is not available in l<Archive::Ar>.
+
+=head2 set_output_format_svr4
+
+ $ar->set_output_format_svr4;
+
+Sets the output format produced by L<#write> to System VR4 format.
+Note: this method is not available in l<Archive::Ar>.
+
 =head2 DEBUG
 
  $ar->DEBUG;

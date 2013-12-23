@@ -13,11 +13,15 @@
 #include <archive.h>
 #include <archive_entry.h>
 
+#define FORMAT_BSD  1
+#define FORMAT_SVR4 2
+
 struct ar_entry;
 
 struct ar {
   struct ar_entry *first;
   int debug;
+  int output_format;
   SV *callback;
 };
 
@@ -140,7 +144,7 @@ ar_write_archive(struct archive *archive, struct ar *ar)
     if(r < ARCHIVE_OK)
     {
       if(ar->debug)
-        warn("%d %s", r, archive_error_string(archive));
+        warn("%s", archive_error_string(archive));
       if(r != ARCHIVE_WARN)
         return 0;
     }
@@ -148,7 +152,7 @@ ar_write_archive(struct archive *archive, struct ar *ar)
     if(r < ARCHIVE_OK)
     {
       if(ar->debug)
-        warn("%d %s", r, archive_error_string(archive));
+        warn("%s", archive_error_string(archive));
       if(r != ARCHIVE_WARN)
         return 0;
     }
@@ -163,7 +167,6 @@ ar_read_archive(struct archive *archive, struct ar *ar)
   struct archive_entry *entry;
   struct ar_entry *e=NULL, *next;
   int r;
-  char buffer[1024];
   size_t size;
   off_t  offset;
 
@@ -231,9 +234,10 @@ _new()
   CODE:
     struct ar *self;
     Newx(self, 1, struct ar);
-    self->first    = NULL;
-    self->debug    = 1;
-    self->callback = NULL;
+    self->first         = NULL;
+    self->debug         = 1;
+    self->output_format = FORMAT_SVR4;
+    self->callback      = NULL;
     RETVAL = self;
   OUTPUT:
     RETVAL
@@ -311,8 +315,12 @@ _write_to_filename(self, filename)
     int r;
     
     archive = archive_write_new();
-    archive_write_set_format_ar_bsd(archive);
-    /* FIXME: also support BSD style ar archives */
+    if(self->output_format == FORMAT_BSD)
+      r = archive_write_set_format_ar_bsd(archive);
+    else
+      r = archive_write_set_format_ar_svr4(archive);
+    if(r != ARCHIVE_OK && self->debug)
+      warn("%s", archive_error_string(archive));
     r = archive_write_open_filename(archive, filename);
     if(r != ARCHIVE_OK && self->debug)
       warn("%s", archive_error_string(archive));
@@ -336,8 +344,12 @@ _write_to_callback(self, callback)
     self->callback = SvREFCNT_inc(callback);
 
     archive = archive_write_new();
-    archive_write_set_format_ar_bsd(archive);
-    /* FIXME: also support BSD style ar archives */
+    if(self->output_format == FORMAT_BSD)
+      r = archive_write_set_format_ar_bsd(archive);
+    else
+      r = archive_write_set_format_ar_svr4(archive);    
+    if(r != ARCHIVE_OK && self->debug)
+      warn("%s", archive_error_string(archive));
     r = archive_write_open(archive, (void*)self, NULL, ar_write_callback, ar_close_callback);
     if(r != ARCHIVE_OK && self->debug)
       warn("%s", archive_error_string(archive));
@@ -501,3 +513,15 @@ get_content(self, filename)
     }
   OUTPUT:
     RETVAL
+
+void
+set_output_format_bsd(self)
+    struct ar *self
+  CODE:
+    self->output_format = FORMAT_BSD;
+
+void
+set_output_format_svr4(self)
+    struct ar *self
+  CODE:
+    self->output_format = FORMAT_SVR4;
