@@ -24,6 +24,15 @@ XSLoader::load('Archive::Ar::Libarchive', $VERSION);
 
 This module is a XS alternative to L<Archive::Ar> that uses libarchive to read and write ar BSD, GNU and common ar archives.
 
+There is no standard for the ar format.  Most modern archives are based on a common format with two extension variants, BSD and GNU.  Other
+esoteric variants (such as AIX (small), AIX (big) and Coherent) vary significantly from the common format and are not supported.  Debian's
+package format (.deb files) use the common format.
+
+The interface attempts to be identical (with a couple of minor extensions) to L<Archive::Ar> and the documentation presented here is based on that module.
+
+The main advantage of L<Archive::Ar> over this module is that it is written in pure perl, and thus does not require a compiler or libarchive.  The advantage of this module
+(at least as of this writing) is that it supports GNU and BSD extensions for longer member filenames.
+
 =head1 METHODS
 
 =head2 new
