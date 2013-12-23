@@ -23,7 +23,7 @@ struct ar {
 
 struct ar_entry {
   struct archive_entry *entry;
-  const void *data;
+  const char *data;
   size_t data_size;
   struct ar_entry *next;
 };
@@ -102,6 +102,9 @@ ar_read_archive(struct archive *archive, struct ar *ar)
   struct archive_entry *entry;
   struct ar_entry *e=NULL, *next;
   int r;
+  char buffer[1024];
+  size_t size;
+  off_t  offset;
 
   while(1)
   {
@@ -126,11 +129,27 @@ ar_read_archive(struct archive *archive, struct ar *ar)
       ar_reset(ar);
       return 0;
     }
-    
+
     Newx(next, 1, struct ar_entry);
+    next->data_size = archive_entry_size(entry);
+    Newx(next->data, next->data_size, char);
+
+    r = archive_read_data(archive, next->data, next->data_size);
+
+    if(r == ARCHIVE_WARN && ar->debug)
+    {
+      warn("%s", archive_error_string(archive));
+    }
+    else if(r != ARCHIVE_OK)
+    {
+      //if(ar->debug)
+      //  warn("%s", archive_error_string(archive));
+      //Safefree(next->data);
+      //Safefree(next);
+      //return 0;
+    }
+    
     next->entry         = entry;
-    next->data          = NULL;
-    next->data_size     = 0;
     next->next          = NULL;
       
     if(ar->first == NULL)

@@ -3,3 +3,5 @@ File::Basename
 Math::Int64
 Module::Build
 Test::More
+YAML
+YAML::XS
