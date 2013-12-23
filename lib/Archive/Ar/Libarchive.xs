@@ -140,13 +140,13 @@ ar_read_archive(struct archive *archive, struct ar *ar)
     {
       warn("%s", archive_error_string(archive));
     }
-    else if(r != ARCHIVE_OK)
+    else if(r < ARCHIVE_OK && r != ARCHIVE_EOF)
     {
-      //if(ar->debug)
-      //  warn("%s", archive_error_string(archive));
-      //Safefree(next->data);
-      //Safefree(next);
-      //return 0;
+      if(ar->debug)
+        warn("%s", archive_error_string(archive));
+      Safefree(next->data);
+      Safefree(next);
+      return 0;
     }
     
     next->entry         = entry;

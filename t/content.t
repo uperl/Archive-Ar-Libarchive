@@ -21,14 +21,6 @@ do {
 
 my $ar = Archive::Ar::Libarchive->new($fn);
 isa_ok $ar, 'Archive::Ar::Libarchive';
-
-foreach my $name (qw( foo bar baz ))
-{
-  use YAML ();
-  diag $name;
-  diag YAML::Dump($ar->get_content("$name.txt"));
-}
-
 is $ar->get_content("foo.txt")->{data}, "hi there\n";
 is $ar->get_content("bar.txt")->{data}, "this is the content of bar.txt\n";
 is $ar->get_content("baz.txt")->{data}, "and again.\n";
