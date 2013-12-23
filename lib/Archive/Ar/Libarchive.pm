@@ -265,14 +265,27 @@ sub write
   }
   else
   {
-    my $content = '';
-    # FIXME: doesn't work
-    my $status = $self->_write_to_callback(sub {
-      my($archive, $buffer) = @_;
-      $content .= $buffer;
-      length $buffer;
-    });
-    return $content if $status;
+    #my $content = '';
+    ## FIXME: doesn't work
+    #my $status = $self->_write_to_callback(sub {
+    #  my($archive, $buffer) = @_;
+    #  $content .= $buffer;
+    #  length $buffer;
+    #});
+    
+    use File::Temp qw( tempdir );
+    use File::Spec;
+    my $dir = tempdir( CLEANUP => 1 );
+    my $fn = File::Spec->catfile($dir, 'archive.ar');
+    my $status = $self->_write_to_filename($fn);
+    return unless $status;
+    
+    open my $fh, '<', $fn;
+    my $data = do { local $/; <$fh> };
+    close $fh;
+    unlink $fn;
+    
+    return $data;
   }
 }
 

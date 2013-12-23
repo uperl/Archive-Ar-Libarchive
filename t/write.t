@@ -24,7 +24,6 @@ subtest 'write filename' => sub {
 };
 
 subtest 'write string' => sub {
-  plan skip_all => 'broken';
   plan tests => 2;
   
   my $content = before()->write;
