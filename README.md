@@ -31,6 +31,8 @@ esoteric variants (such as AIX (small), AIX (big) and Coherent) vary significant
 package format (.deb files) use the common format.
 
 The interface attempts to be identical (with a couple of minor extensions) to [Archive::Ar](https://metacpan.org/pod/Archive::Ar) and the documentation presented here is based on that module.
+The diagnostic messages issued on error mostly come directly from libarchive, so they will likely not match exactly what [Archive::Ar](https://metacpan.org/pod/Archive::Ar) would produce,
+but it should issue a warning (when [#DEBUG](https://metacpan.org/pod/#DEBUG) is turned on) under similar circumstances.
 
 The main advantage of [Archive::Ar](https://metacpan.org/pod/Archive::Ar) over this module is that it is written in pure perl, and thus does not require a compiler or libarchive.  The advantage of this module
 (at least as of this writing) is that it supports GNU and BSD extensions for longer member filenames.

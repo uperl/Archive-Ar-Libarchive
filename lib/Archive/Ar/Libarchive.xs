@@ -137,9 +137,21 @@ ar_write_archive(struct archive *archive, struct ar *ar)
   for(entry = ar->first; entry != NULL; entry = entry->next)
   {
     r = archive_write_header(archive, entry->entry);
-    /* FIXME: check for error */
+    if(r < ARCHIVE_OK)
+    {
+      if(ar->debug)
+        warn("%d %s", r, archive_error_string(archive));
+      if(r != ARCHIVE_WARN)
+        return 0;
+    }
     r = archive_write_data(archive, entry->data, entry->data_size);
-    /* FIXME: check for error */
+    if(r < ARCHIVE_OK)
+    {
+      if(ar->debug)
+        warn("%d %s", r, archive_error_string(archive));
+      if(r != ARCHIVE_WARN)
+        return 0;
+    }
   }
   
   return archive_filter_bytes(archive, 0);
@@ -220,7 +232,7 @@ _new()
     struct ar *self;
     Newx(self, 1, struct ar);
     self->first    = NULL;
-    self->debug    = 0;
+    self->debug    = 1;
     self->callback = NULL;
     RETVAL = self;
   OUTPUT:
@@ -302,9 +314,13 @@ _write_to_filename(self, filename)
     archive_write_set_format_ar_bsd(archive);
     /* FIXME: also support BSD style ar archives */
     r = archive_write_open_filename(archive, filename);
-    /* FIXME: check for errors */
-    
-    RETVAL = ar_write_archive(archive, self);
+    if(r != ARCHIVE_OK && self->debug)
+      warn("%s", archive_error_string(archive));
+    if(r == ARCHIVE_OK || r == ARCHIVE_WARN)
+      RETVAL = ar_write_archive(archive, self);
+    else
+      RETVAL = 0;
+      
     archive_write_free(archive);
   OUTPUT:
     RETVAL
@@ -323,11 +339,14 @@ _write_to_callback(self, callback)
     archive_write_set_format_ar_bsd(archive);
     /* FIXME: also support BSD style ar archives */
     r = archive_write_open(archive, (void*)self, NULL, ar_write_callback, ar_close_callback);
-    /* FIXME: check for errors */
+    if(r != ARCHIVE_OK && self->debug)
+      warn("%s", archive_error_string(archive));
+    if(r == ARCHIVE_OK || r == ARCHIVE_WARN)
+      RETVAL = ar_write_archive(archive, self);
+    else
+      RETVAL = 0;
     
-    RETVAL = ar_write_archive(archive, self);
-    archive_write_free(archive);
-    
+    archive_write_free(archive);    
     SvREFCNT_dec(callback);
     self->callback = NULL;    
   OUTPUT:
