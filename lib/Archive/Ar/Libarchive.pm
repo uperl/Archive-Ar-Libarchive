@@ -79,9 +79,7 @@ sub read
   {
     my $buffer;
     $ret = $self->_read_from_callback(sub {
-      print "here\n";
       my $br = read $filename_or_handle, $buffer, 1024;
-      print "br = $br\n";
       ((defined $br ? 0 : -30), \$buffer);
     });
     close $filename_or_handle;
@@ -131,6 +129,76 @@ sub list_files
   my $list = shift->_list_files;
   wantarray ? @$list : $list;
 }
+
+=head2 add_data
+
+ my $size = $ar->add_data($filename, $filedata);
+
+Takes an filename and a set of data to represent it. Unlike L<#add_files>, L<#add_data>
+is a virtual add, and does not require data on disk to be present. The
+data is a hash that looks like:
+
+ $filedata = {
+   data => $data,
+   uid  => $uid,   #defaults to zero
+   gid  => $gid,   #defaults to zero
+   date => $date,  #date in epoch seconds. Defaults to now.
+   mode => $mode,  #defaults to 0100644;
+ };
+
+You cannot add_data over another file however.  This returns the file length in
+bytes if it is successful, undef otherwise.
+
+=cut
+
+sub add_data
+{
+  my($self, $filename, $data) = @_;
+  $self->_add_data($filename, $data->{data}, $data->{uid} || 0, $data->{gid} || 0, $data->{date} || time, $data->{mode} || 0100644);
+  use bytes;
+  length $data->{data};
+}
+
+=head2 get_content
+
+ my $hash = get_content($filename);
+
+This returns a hash with the file content in it, including the data that the
+file would naturally contain.  If the file does not exist or no filename is
+given, this returns undef. On success, a hash is returned with the following
+keys:
+
+=over 4
+
+=item name
+
+The file name
+
+=item date
+
+The file date (in epoch seconds)
+
+=item uid
+
+The uid of the file
+
+=item gid
+
+The gid of the file
+
+=item mode
+
+The mode permissions
+
+=item size
+
+The size (in bytes) of the file
+
+=item data
+
+The contained data
+
+=back
 
 =head2 remove
 

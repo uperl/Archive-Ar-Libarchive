@@ -25,6 +25,7 @@ struct ar_entry {
   struct archive_entry *entry;
   const char *real_filename;
   const void *data;
+  size_t data_size;
   struct ar_entry *next;
 };
 
@@ -133,6 +134,7 @@ ar_read_archive(struct archive *archive, struct ar *ar)
     next->entry         = entry;
     next->real_filename = NULL;
     next->data          = NULL;
+    next->data_size     = 0;
     next->next          = NULL;
       
     if(ar->first == NULL)
@@ -253,6 +255,44 @@ _remove(self,pathname)
   OUTPUT:
     RETVAL
 
+void
+_add_data(self,filename,data,uid,gid,date,mode)
+    struct ar *self
+    const char *filename
+    SV *data
+    __LA_INT64_T uid
+    __LA_INT64_T gid
+    time_t date
+    int mode
+  CODE:
+    struct ar_entry **entry;
+    char *buffer;
+    
+    entry = &(self->first);
+    
+    while(*entry != NULL)
+    {
+      entry = &((*entry)->next);
+    }
+    
+    Newx((*entry), 1, struct ar_entry);
+    
+    (*entry)->entry = archive_entry_new();
+    archive_entry_set_pathname((*entry)->entry, filename);
+    archive_entry_set_uid((*entry)->entry, uid);
+    archive_entry_set_gid((*entry)->entry, gid);
+    archive_entry_set_mtime((*entry)->entry, date, date);
+    archive_entry_set_mode((*entry)->entry, mode);
+    
+    (*entry)->real_filename = NULL;
+    (*entry)->next          = NULL;
+    
+    buffer = SvPV(data, (*entry)->data_size);
+    
+    Newx((*entry)->data, (*entry)->data_size, char);
+    Copy(buffer, (*entry)->data, (*entry)->data_size, char);
+    
+
 SV *
 _list_files(self)
     struct ar *self
@@ -296,3 +336,42 @@ DESTROY(self)
   CODE:
     ar_reset(self);
     Safefree(self);
+
+SV *
+get_content(self, filename)
+    struct ar *self
+    const char *filename
+  CODE:
+    struct ar_entry *entry;
+    HV *hv;
+    int found;
+    
+    entry = self->first;
+    found = 0;
+    
+    while(entry != NULL)
+    {
+      if(!strcmp(archive_entry_pathname(entry->entry), filename))
+      {
+        hv = newHV();
+        hv_store(hv, "name", 4, newSVpv(filename, strlen(filename)),         0);
+        hv_store(hv, "date", 4, newSVi64(archive_entry_mtime(entry->entry)), 0);
+        hv_store(hv, "uid",  3, newSVi64(archive_entry_uid(entry->entry)),   0);
+        hv_store(hv, "gid",  3, newSVi64(archive_entry_gid(entry->entry)),   0);
+        hv_store(hv, "mode", 4, newSViv(archive_entry_mode(entry->entry)),   0);
+        hv_store(hv, "size", 4, newSViv(entry->data_size),                   0);
+        hv_store(hv, "data", 4, newSVpv(entry->data, entry->data_size),      0);
+        RETVAL = newRV_noinc((SV*)hv);
+      
+        found = 1;
+        break;
+      }
+      entry = entry->next;
+    }
+    
+    if(!found)
+    {
+      XSRETURN_EMPTY;
+    }
+  OUTPUT:
+    RETVAL

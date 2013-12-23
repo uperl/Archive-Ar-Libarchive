@@ -1,4 +1,5 @@
-struct ar * T_AR_ARCHIVE
+struct ar *   T_AR_ARCHIVE
+__LA_INT64_T  T_INT64
 
 INPUT
 T_AR_ARCHIVE

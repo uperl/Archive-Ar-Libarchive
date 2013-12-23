@@ -56,6 +56,62 @@ This lists the files contained inside of the archive by filename, as
 an array. If called in a scalar context, returns a reference to an
 array.
 
+## add\_data
+
+    my $size = $ar->add_data($filename, $filedata);
+
+Takes an filename and a set of data to represent it. Unlike [#add_files](https://metacpan.org/pod/#add_files), [#add_data](https://metacpan.org/pod/#add_data)
+is a virtual add, and does not require data on disk to be present. The
+data is a hash that looks like:
+
+    $filedata = {
+      data => $data,
+      uid  => $uid,   #defaults to zero
+      gid  => $gid,   #defaults to zero
+      date => $date,  #date in epoch seconds. Defaults to now.
+      mode => $mode,  #defaults to 0100644;
+    };
+
+You cannot add\_data over another file however.  This returns the file length in
+bytes if it is successful, undef otherwise.
+
+## get\_content
+
+    my $hash = get_content($filename);
+
+This returns a hash with the file content in it, including the data that the
+file would naturally contain.  If the file does not exist or no filename is
+given, this returns undef. On success, a hash is returned with the following
+keys:
+
+- name
+
+    The file name
+
+- date
+
+    The file date (in epoch seconds)
+
+- uid
+
+    The uid of the file
+
+- gid
+
+    The gid of the file
+
+- mode
+
+    The mode permissions
+
+- size
+
+    The size (in bytes) of the file
+
+- data
+
+    The contained data
+
 ## remove
 
     my $count = $ar->remove(@pathnames);
