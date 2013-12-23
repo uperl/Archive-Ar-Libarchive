@@ -132,6 +132,28 @@ sub list_files
   wantarray ? @$list : $list;
 }
 
+=head2 remove
+
+ my $count = $ar->remove(@pathnames);
+ my $count = $ar->remove(\@pathnames);
+
+The remove method takes a filenames as a list or as an arrayref, and removes
+them, one at a time, from the Archive::Ar object.  This returns the number
+of files successfully removed from the archive.
+
+=cut
+
+sub remove
+{
+  my $self = shift;
+  my $count = 0;
+  foreach my $pathname (@{ ref $_[0] ? $_[0] : \@_ })
+  {
+    $count += $self->_remove($pathname);
+  }
+  $count;
+}
+
 =head2 DEBUG
 
  $ar->DEBUG;

@@ -29,6 +29,16 @@ struct ar_entry {
 };
 
 static void
+ar_free_entry(struct ar_entry *entry)
+{
+  archive_entry_free(entry->entry);
+  if(entry->real_filename != NULL)
+    Safefree(entry->real_filename);
+  if(entry->data != NULL)
+    Safefree(entry->data);
+}
+
+static void
 ar_reset(struct ar *ar)
 {
   struct ar_entry *entry, *old;
@@ -36,11 +46,7 @@ ar_reset(struct ar *ar)
   entry = ar->first;
   while(entry != NULL)
   {
-    archive_entry_free(entry->entry);
-    if(entry->real_filename != NULL)
-      Safefree(entry->real_filename);
-    if(entry->data != NULL)
-      Safefree(entry->data);
+    ar_free_entry(entry);
     old = entry;
     entry = entry->next;
     Safefree(old);
@@ -215,6 +221,35 @@ _read_from_callback(self, callback)
     self->callback = NULL;
 
     archive_read_free(archive);
+  OUTPUT:
+    RETVAL
+
+int
+_remove(self,pathname)
+    struct ar *self
+    const char *pathname
+  CODE:
+    struct ar_entry **entry;
+    entry = &(self->first);
+    
+    RETVAL = 0;
+    
+    while(1)
+    {
+      if(!strcmp(archive_entry_pathname((*entry)->entry),pathname))
+      {
+        ar_free_entry(*entry);
+        *entry = (*entry)->next;
+        RETVAL = 1;
+        break;
+      }
+      
+      if((*entry)->next == NULL)
+        break;
+      
+      entry = &((*entry)->next);
+    }
+    
   OUTPUT:
     RETVAL
 

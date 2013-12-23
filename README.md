@@ -56,6 +56,15 @@ This lists the files contained inside of the archive by filename, as
 an array. If called in a scalar context, returns a reference to an
 array.
 
+## remove
+
+    my $count = $ar->remove(@pathnames);
+    my $count = $ar->remove(\@pathnames);
+
+The remove method takes a filenames as a list or as an arrayref, and removes
+them, one at a time, from the Archive::Ar object.  This returns the number
+of files successfully removed from the archive.
+
 ## DEBUG
 
     $ar->DEBUG;
