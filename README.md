@@ -92,6 +92,16 @@ data is a hash that looks like:
 You cannot add\_data over another file however.  This returns the file length in
 bytes if it is successful, undef otherwise.
 
+## write
+
+    my $content = $ar->write;
+    my $size = $ar->write($filename);
+
+This method will return the data as an .ar archive, or will write to
+the filename present if specified. If given a filename, [#write](https://metacpan.org/pod/#write) will
+return the length of the file written, in bytes, or undef on failure.
+If the filename already exists, it will overwrite that file.
+
 ## get\_content
 
     my $hash = get_content($filename);

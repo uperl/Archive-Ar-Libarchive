@@ -222,6 +222,32 @@ sub add_data
   length $data->{data};
 }
 
+=head2 write
+
+ my $content = $ar->write;
+ my $size = $ar->write($filename);
+
+This method will return the data as an .ar archive, or will write to
+the filename present if specified. If given a filename, L<#write> will
+return the length of the file written, in bytes, or undef on failure.
+If the filename already exists, it will overwrite that file.
+
+=cut
+
+sub write
+{
+  my($self, $filename) = @_;
+  if(defined $filename)
+  {
+    return $self->_write_to_filename($filename);
+  }
+  else
+  {
+    # FIXME
+    die;
+  }
+}
+
 =head2 get_content
 
  my $hash = get_content($filename);

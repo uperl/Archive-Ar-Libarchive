@@ -97,6 +97,24 @@ ar_close_callback(struct archive *archive, void *client_data)
 }
 
 static __LA_INT64_T
+ar_write_archive(struct archive *archive, struct ar *ar)
+{
+  int r;
+  struct ar_entry *entry;
+  int count;
+
+  for(entry = ar->first; entry != NULL; entry = entry->next)
+  {
+    r = archive_write_header(archive, entry->entry);
+    /* FIXME: check for error */
+    r = archive_write_data(archive, entry->data, entry->data_size);
+    /* FIXME: check for error */
+  }
+  
+  return archive_filter_bytes(archive, 0);
+}
+
+static __LA_INT64_T
 ar_read_archive(struct archive *archive, struct ar *ar)
 {
   struct archive_entry *entry;
@@ -242,6 +260,26 @@ _read_from_callback(self, callback)
     RETVAL
 
 int
+_write_to_filename(self, filename)
+    struct ar *self
+    const char *filename
+  CODE:
+    struct archive *archive;
+    int r;
+    
+    archive = archive_write_new();
+    archive_write_set_format_ar_svr4(archive);
+    /* FIXME: also support BSD style ar archives */
+    r = archive_write_open_filename(archive, filename);
+    /* FIXME: check for errors */
+    
+    RETVAL = ar_write_archive(archive, self);
+    
+    archive_write_free(archive);
+  OUTPUT:
+    RETVAL
+
+int
 _remove(self,pathname)
     struct ar *self
     const char *pathname
@@ -302,6 +340,7 @@ _add_data(self,filename,data,uid,gid,date,mode)
     (*entry)->next          = NULL;
     
     buffer = SvPV(data, (*entry)->data_size);
+    archive_entry_set_size((*entry)->entry, (*entry)->data_size);
     
     Newx((*entry)->data, (*entry)->data_size, char);
     Copy(buffer, (*entry)->data, (*entry)->data_size, char);
