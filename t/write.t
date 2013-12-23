@@ -42,15 +42,13 @@ subtest 'write string' => sub {
 sub before
 {
   my $ar = Archive::Ar::Libarchive->new;
-  $ar->add_data("foo.txt", {
-    data => "foo content",
+  $ar->add_data("foo.txt", "foo content", {
     uid  => 101,
     gid  => 202,
     date => 12345679,
     mode => 0100640,
   });
-  $ar->add_data("bar.txt", {
-    data => "bar content\nbar content\n",
+  $ar->add_data("bar.txt", "bar content\nbar content\n", {
     uid  => 303,
     gid  => 404,
     date => 123456798,

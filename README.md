@@ -84,14 +84,13 @@ returns the number of files successfully added, or undef on failure.
 
 ## add\_data
 
-    my $size = $ar->add_data($filename, $filedata);
+    my $size = $ar->add_data($filename, $data, $filedata);
 
 Takes an filename and a set of data to represent it. Unlike [#add_files](https://metacpan.org/pod/#add_files), [#add_data](https://metacpan.org/pod/#add_data)
 is a virtual add, and does not require data on disk to be present. The
 data is a hash that looks like:
 
     $filedata = {
-      data => $data,
       uid  => $uid,   #defaults to zero
       gid  => $gid,   #defaults to zero
       date => $date,  #date in epoch seconds. Defaults to now.

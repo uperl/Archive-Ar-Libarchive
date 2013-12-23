@@ -187,8 +187,7 @@ sub add_files
     my $data = do { local $/; <$fh> };
     close $fh;
     
-    $self->add_data(basename($filename), {
-      data => $data,
+    $self->add_data(basename($filename), $data, {
       date => $props[9],
       uid  => $props[4],
       gid  => $props[5],
@@ -204,14 +203,13 @@ sub add_files
 
 =head2 add_data
 
- my $size = $ar->add_data($filename, $filedata);
+ my $size = $ar->add_data($filename, $data, $filedata);
 
 Takes an filename and a set of data to represent it. Unlike L<#add_files>, L<#add_data>
 is a virtual add, and does not require data on disk to be present. The
 data is a hash that looks like:
 
  $filedata = {
-   data => $data,
    uid  => $uid,   #defaults to zero
    gid  => $gid,   #defaults to zero
    date => $date,  #date in epoch seconds. Defaults to now.
@@ -225,10 +223,11 @@ bytes if it is successful, undef otherwise.
 
 sub add_data
 {
-  my($self, $filename, $data) = @_;
-  $self->_add_data($filename, $data->{data}, $data->{uid} || 0, $data->{gid} || 0, $data->{date} || time, $data->{mode} || 0100644);
+  my($self, $filename, $data, $filedata) = @_;
+  $filedata ||= {};
+  $self->_add_data($filename, $data, $filedata->{uid} || 0, $filedata->{gid} || 0, $filedata->{date} || time, $filedata->{mode} || 0100644);
   use bytes;
-  length $data->{data};
+  length $data;
 }
 
 =head2 write

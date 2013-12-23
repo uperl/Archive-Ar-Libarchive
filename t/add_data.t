@@ -8,9 +8,9 @@ subtest defaults => sub {
 
   my $ar = Archive::Ar::Libarchive->new;
   
-  is $ar->add_data("1",       { data => 'one' }), 3, 'add_data';
-  is $ar->add_data("foo.txt", { data => 'bar' }), 3, 'add_data';
-  is $ar->add_data("2",       { data => 'two' }), 3, 'add_data';
+  is $ar->add_data("1",       'one'), 3, 'add_data';
+  is $ar->add_data("foo.txt", 'bar'), 3, 'add_data';
+  is $ar->add_data("2",       'two'), 3, 'add_data';
 
   my $data = $ar->get_content('foo.txt');
   is $data->{name}, 'foo.txt', 'name';
@@ -28,16 +28,15 @@ subtest 'non default values' => sub {
 
   my $ar = Archive::Ar::Libarchive->new;
   
-  is $ar->add_data("1",       { data => 'one' }), 3, 'add_data';
+  is $ar->add_data("1",       'one'), 3, 'add_data';
   
-  is $ar->add_data("foo.txt", {
-    data => 'barbaz',
+  is $ar->add_data("foo.txt", 'barbaz', {
     uid  => 101,
     gid  => 201,
     mode => 0644,
   }), 6, 'add_data';
   
-  is $ar->add_data("2",       { data => 'two' }), 3, 'add_data';
+  is $ar->add_data("2",       'two'), 3, 'add_data';
 
   my $data = $ar->get_content('foo.txt');
   is $data->{name}, 'foo.txt', 'name';
