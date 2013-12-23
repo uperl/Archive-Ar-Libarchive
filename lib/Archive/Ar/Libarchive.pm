@@ -2,6 +2,7 @@ package Archive::Ar::Libarchive;
 
 use strict;
 use warnings;
+use Alien::Libarchive;
 use Carp qw( carp );
 
 # ABSTRACT: Interface for manipulating ar archives with libarchive
