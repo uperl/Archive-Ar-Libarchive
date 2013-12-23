@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Alien::Libarchive;
 use Carp qw( carp );
+use File::Basename qw( basename );
 
 # ABSTRACT: Interface for manipulating ar archives with libarchive
 # VERSION
@@ -49,8 +50,7 @@ sub new
   {
     unless($self->read($filename_or_handle))
     {
-      $self->_dowarn("new() failed on filename for filehandle read");
-      return;
+      return $self->_warn("new() failed on filename for filehandle read");
     }
   }
   
@@ -128,6 +128,69 @@ sub list_files
 {
   my $list = shift->_list_files;
   wantarray ? @$list : $list;
+}
+
+=head2 add_files
+
+ $ar->add_files(@filenames);
+ $ar->add_files(\@filenames);
+
+Takes an array or an arrayref of filenames to add to the ar archive,
+in order. The filenames can be paths to files, in which case the path
+information is stripped off. Filenames longer than 16 characters are
+truncated when written to disk in the format, so keep that in mind
+when adding files.
+
+Due to the nature of the ar archive format, L<#add_files> will store
+the uid, gid, mode, size, and creation date of the file as returned by
+L<stat|perlfunc#stat>.
+
+returns the number of files successfully added, or undef on failure.
+
+=cut
+
+sub add_files
+{
+  my $self = shift;
+  my $count = 0;
+  foreach my $filename (@{ ref $_[0] ? $_[0] : \@_ })
+  {
+    unless(-r $filename)
+    {
+      $self->_warn("No such file: $filename");
+      next;
+    }
+    my @props = stat($filename);
+    unless(@props)
+    {
+      $self->_warn("Could not stat $filename.");
+      next;
+    }
+    
+    open(my $fh, '<', $filename) || do {
+      $self->_warn("Unable to open $filename $!");
+      next;
+    };
+    binmode $fh;
+    # TODO: we don't check for error on the actual
+    # read operation (but then nethier does
+    # Archive::Ar).
+    my $data = do { local $/; <$fh> };
+    close $fh;
+    
+    $self->add_data(basename($filename), {
+      data => $data,
+      date => $props[9],
+      uid  => $props[4],
+      gid  => $props[5],
+      mode => $props[2],
+      size => length $data,
+    });
+    $count++;
+  }
+  
+  return unless $count;
+  $count;
 }
 
 =head2 add_data
@@ -239,7 +302,7 @@ sub DEBUG
   return;
 }
 
-sub _dowarn
+sub _warn
 {
   my($self, $warning) = @_;
   carp $warning if $self->_get_debug;

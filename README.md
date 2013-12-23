@@ -56,6 +56,23 @@ This lists the files contained inside of the archive by filename, as
 an array. If called in a scalar context, returns a reference to an
 array.
 
+## add\_files
+
+    $ar->add_files(@filenames);
+    $ar->add_files(\@filenames);
+
+Takes an array or an arrayref of filenames to add to the ar archive,
+in order. The filenames can be paths to files, in which case the path
+information is stripped off. Filenames longer than 16 characters are
+truncated when written to disk in the format, so keep that in mind
+when adding files.
+
+Due to the nature of the ar archive format, [#add_files](https://metacpan.org/pod/#add_files) will store
+the uid, gid, mode, size, and creation date of the file as returned by
+[stat](https://metacpan.org/pod/perlfunc#stat).
+
+returns the number of files successfully added, or undef on failure.
+
 ## add\_data
 
     my $size = $ar->add_data($filename, $filedata);

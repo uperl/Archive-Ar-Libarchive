@@ -23,7 +23,6 @@ struct ar {
 
 struct ar_entry {
   struct archive_entry *entry;
-  const char *real_filename;
   const void *data;
   size_t data_size;
   struct ar_entry *next;
@@ -33,8 +32,6 @@ static void
 ar_free_entry(struct ar_entry *entry)
 {
   archive_entry_free(entry->entry);
-  if(entry->real_filename != NULL)
-    Safefree(entry->real_filename);
   if(entry->data != NULL)
     Safefree(entry->data);
 }
@@ -132,7 +129,6 @@ ar_read_archive(struct archive *archive, struct ar *ar)
     
     Newx(next, 1, struct ar_entry);
     next->entry         = entry;
-    next->real_filename = NULL;
     next->data          = NULL;
     next->data_size     = 0;
     next->next          = NULL;
@@ -284,7 +280,6 @@ _add_data(self,filename,data,uid,gid,date,mode)
     archive_entry_set_mtime((*entry)->entry, date, date);
     archive_entry_set_mode((*entry)->entry, mode);
     
-    (*entry)->real_filename = NULL;
     (*entry)->next          = NULL;
     
     buffer = SvPV(data, (*entry)->data_size);

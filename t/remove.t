@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 1;
+use Test::More tests => 2;
 use File::Temp qw( tempdir );
 use File::Spec;
 use Archive::Ar::Libarchive;
@@ -19,13 +19,26 @@ do {
   close $fh;
 };
 
-subtest 'remove' => sub {
+subtest 'remove list' => sub {
   plan tests => 3;
   
   my $ar = Archive::Ar::Libarchive->new($fn);
   isa_ok $ar, 'Archive::Ar::Libarchive';
   
   my $count = eval { $ar->remove('foo.txt', 'baz.txt') };
+  is $count, 2, 'count = 2';
+  diag $@ if $@;
+
+  is_deeply scalar $ar->list_files, [map { "$_.txt" } qw( bar )], "just bar";
+};
+
+subtest 'remove ref' => sub {
+  plan tests => 3;
+  
+  my $ar = Archive::Ar::Libarchive->new($fn);
+  isa_ok $ar, 'Archive::Ar::Libarchive';
+  
+  my $count = eval { $ar->remove(['foo.txt', 'baz.txt']) };
   is $count, 2, 'count = 2';
   diag $@ if $@;
 
