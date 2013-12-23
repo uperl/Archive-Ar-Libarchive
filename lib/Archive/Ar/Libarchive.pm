@@ -59,8 +59,8 @@ sub new
 
 =head2 read
 
- $ar->read($filename);
- $ar->read($fh);
+ my $br = $ar->read($filename);
+ my $br = $ar->read($fh);
 
 This reads a new file into the object, removing any ar archive already
 represented in the object.
@@ -84,13 +84,35 @@ sub read
       print "br = $br\n";
       ((defined $br ? 0 : -30), \$buffer);
     });
+    close $filename_or_handle;
   }
   else
   {
     $ret = $self->_read_from_filename($filename_or_handle);
   }
 
-  return $ret || undef;
+  $ret || undef;
+}
+
+=head2 read_memory
+
+ my $br = $ar->read_memory($data);
+
+This reads information from the first parameter, and attempts to parse and treat
+it like an ar archive. Like L<#read>, it will wipe out whatever you have in the
+object and replace it with the contents of the new archive, even if it fails.
+Returns the number of bytes read (processed) if successful, undef otherwise.
+
+=cut
+
+sub read_memory
+{
+  my($self, $data) = @_;
+  
+  open my $fh, '<', \$data;
+  my $ret = $self->read($fh);
+  
+  $ret;
 }
 
 =head2 list_files

@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 2;
+use Test::More tests => 3;
 use File::Temp qw( tempdir );
 use File::Spec;
 use Archive::Ar::Libarchive;
@@ -35,6 +35,21 @@ subtest 'glob' => sub {
   open my $fh, '<', $fn;
   my $ar = Archive::Ar::Libarchive->new($fh);
   isa_ok $ar, 'Archive::Ar::Libarchive';
+
+  is_deeply scalar $ar->list_files, [map { "$_.txt" } qw( foo bar baz )], "scalar context";
+  is_deeply [$ar->list_files],      [map { "$_.txt" } qw( foo bar baz )], "list context";
+};
+
+subtest 'memory' => sub {
+  plan tests => 4;
+
+  open my $fh, '<', $fn;
+  my $data = do { local $/; <$fh> };
+  close $fh;
+  
+  my $ar = Archive::Ar::Libarchive->new;
+  isa_ok $ar, 'Archive::Ar::Libarchive';
+  is $ar->read_memory($data), 242;
 
   is_deeply scalar $ar->list_files, [map { "$_.txt" } qw( foo bar baz )], "scalar context";
   is_deeply [$ar->list_files],      [map { "$_.txt" } qw( foo bar baz )], "list context";

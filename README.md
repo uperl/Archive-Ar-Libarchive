@@ -30,13 +30,22 @@ should help.
 
 ## read
 
-    $ar->read($filename);
-    $ar->read($fh);
+    my $br = $ar->read($filename);
+    my $br = $ar->read($fh);
 
 This reads a new file into the object, removing any ar archive already
 represented in the object.
 
 Returns the number of bytes read, undef on failure.
+
+## read\_memory
+
+    my $br = $ar->read_memory($data);
+
+This reads information from the first parameter, and attempts to parse and treat
+it like an ar archive. Like [#read](https://metacpan.org/pod/#read), it will wipe out whatever you have in the
+object and replace it with the contents of the new archive, even if it fails.
+Returns the number of bytes read (processed) if successful, undef otherwise.
 
 ## list\_files
 
