@@ -8,6 +8,18 @@ Interface for manipulating ar archives with libarchive
     
     my $ar = Archive::Ar->new('libfoo.a');
     
+    $ar->add_data('newfile.txt', 'some contents', { uid => 101, gid => 102 });
+    
+    $ar->add_files('./bar.tar.gz', 'bat.pl');
+     
+    $ar->remove('file1', 'file2');
+    
+    my $content = $ar->get_content('file3')->{data};
+    
+    my @files = $ar->list_files;
+    
+    $ar->write('libbar.a');
+    
     my @file_list = $ar->list_files;
 
 # DESCRIPTION
