@@ -157,8 +157,12 @@ ar_write_archive(struct archive *archive, struct ar *ar)
         return 0;
     }
   }
-  
+
+#if ARCHIVE_VERSION_NUMBER < 3000000
+  return archive_position_uncompressed(archive);
+#else
   return archive_filter_bytes(archive, 0);
+#endif
 }
 
 static __LA_INT64_T
@@ -185,7 +189,11 @@ ar_read_archive(struct archive *archive, struct ar *ar)
     else if(r == ARCHIVE_EOF)
     {
       archive_entry_free(entry);
+#if ARCHIVE_VERSION_NUMBER < 3000000
+      return archive_position_uncompressed(archive);
+#else
       return archive_filter_bytes(archive, 0);
+#endif
     }
     else
     {
