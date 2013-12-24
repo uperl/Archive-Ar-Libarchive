@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  - Fix method links
 
 0.03      2013-12-24 16:18:17 -0500
   - First CPAN release
