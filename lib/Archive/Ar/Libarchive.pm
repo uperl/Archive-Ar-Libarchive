@@ -2,12 +2,17 @@ package Archive::Ar::Libarchive;
 
 use strict;
 use warnings;
-use Alien::Libarchive;
 use Carp qw( carp );
 use File::Basename qw( basename );
 
 # ABSTRACT: Interface for manipulating ar archives with libarchive
 # VERSION
+
+unless($^O eq 'MSWin32')
+{
+  require Alien::Libarchive;
+  Alien::Libarchive->import;
+}
 
 require XSLoader;
 XSLoader::load('Archive::Ar::Libarchive', $VERSION);
@@ -131,6 +136,7 @@ sub read_memory
   my($self, $data) = @_;
   
   open my $fh, '<', \$data;
+  binmode $fh;
   my $ret = $self->read($fh);
   
   $ret;
@@ -283,6 +289,7 @@ sub write
     return unless $status;
     
     open my $fh, '<', $fn;
+    binmode $fh;
     my $data = do { local $/; <$fh> };
     close $fh;
     unlink $fn;

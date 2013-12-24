@@ -12,6 +12,7 @@ note "fn = $fn";
 
 do { 
   open my $fh, '>', $fn;
+  binmode $fh;
   while(<DATA>) {
     chomp;
     print $fh unpack('u', $_);
