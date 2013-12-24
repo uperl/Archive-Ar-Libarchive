@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.02      2013-12-24 15:58:08 -0500
   - support for libarchive 2.x
   - support for Strawberry / MSWin32
 
