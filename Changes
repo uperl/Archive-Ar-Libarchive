@@ -2,6 +2,7 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
   - support for libarchive 2.x
+  - support for Strawberry / MSWin32
 
 0.01      2013-12-23 15:37:33 -0500
   - initial version

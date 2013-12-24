@@ -12,9 +12,15 @@ sub new
   my($class, %args) = @_;
   
   $alien ||= Alien::Libarchive->new;
+
+  my $libs = $alien->libs;
+  if($^O eq 'MSWin32')
+  {
+    $libs =~ s/-larchive\b/-larchive_static/;
+  }
   
   $args{extra_compiler_flags} = $alien->cflags;
-  $args{extra_linker_flags}   = $alien->libs;
+  $args{extra_linker_flags}   = $libs;
   $args{c_source}             = 'xs';
   
   $class->SUPER::new(%args);
