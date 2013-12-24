@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.04      2013-12-24 17:05:15 -0500
   - Fix method links
 
 0.03      2013-12-24 16:18:17 -0500
