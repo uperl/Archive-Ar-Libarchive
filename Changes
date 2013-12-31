@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.05      2013-12-31 12:31:50 -0500
   - support for MS Visual Studio C++ on MSWin32
 
 0.04      2013-12-24 17:05:15 -0500
