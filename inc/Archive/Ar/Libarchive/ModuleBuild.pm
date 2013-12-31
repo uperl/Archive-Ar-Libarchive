@@ -13,13 +13,16 @@ sub new
   
   $alien ||= Alien::Libarchive->new;
 
-  my $libs = $alien->libs;
+  my $cflags = $alien->cflags;
+  my $libs   = $alien->libs;
+  
   if($^O eq 'MSWin32')
   {
+    $cflags .= ' -DLIBARCHIVE_STATIC';
     $libs =~ s/-larchive\b/-larchive_static/;
   }
   
-  $args{extra_compiler_flags} = $alien->cflags;
+  $args{extra_compiler_flags} = $cflags;
   $args{extra_linker_flags}   = $libs;
   $args{c_source}             = 'xs';
   

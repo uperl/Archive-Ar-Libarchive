@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  - support for MS Visual Studio C++ on MSWin32
 
 0.04      2013-12-24 17:05:15 -0500
   - Fix method links
