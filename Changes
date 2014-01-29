@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  - remove accidental debug diagnostic
 
 0.05      2013-12-31 12:31:50 -0500
   - support for MS Visual Studio C++ on MSWin32
