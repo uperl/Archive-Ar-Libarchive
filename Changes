@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.06      2014-01-29 09:15:42 -0500
   - remove accidental debug diagnostic
 
 0.05      2013-12-31 12:31:50 -0500
