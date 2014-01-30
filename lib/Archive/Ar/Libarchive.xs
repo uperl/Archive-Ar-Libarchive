@@ -98,9 +98,6 @@ ar_write_callback(struct archive *archive, void *cd, const void *buffer, size_t 
   int count;
   __LA_INT64_T status;
 
-  printf("length = %d\n", length);
-  fflush(stdout);
-  
   dSP;
   ENTER;
   SAVETMPS;
@@ -203,7 +200,7 @@ ar_read_archive(struct archive *archive, struct ar *ar)
     next->data_size = archive_entry_size(entry);
     Newx(next->data, next->data_size, char);
 
-    r = archive_read_data(archive, next->data, next->data_size);
+    r = archive_read_data(archive, (void*)next->data, next->data_size);
 
     if(r == ARCHIVE_WARN && ar->debug)
     {
@@ -508,6 +505,8 @@ get_content(self, filename)
       if(!strcmp(archive_entry_pathname(entry->entry), filename))
       {
         hv = newHV();
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-value"
         hv_store(hv, "name", 4, newSVpv(filename, strlen(filename)),         0);
         hv_store(hv, "date", 4, newSVi64(archive_entry_mtime(entry->entry)), 0);
         hv_store(hv, "uid",  3, newSVi64(archive_entry_uid(entry->entry)),   0);
@@ -515,6 +514,7 @@ get_content(self, filename)
         hv_store(hv, "mode", 4, newSViv(archive_entry_mode(entry->entry)),   0);
         hv_store(hv, "size", 4, newSViv(entry->data_size),                   0);
         hv_store(hv, "data", 4, newSVpv(entry->data, entry->data_size),      0);
+#pragma clang diagnostic pop
         RETVAL = newRV_noinc((SV*)hv);
       
         found = 1;
