@@ -1,4 +1,4 @@
-package Archive::Ar::Libarchive::ModuleBuild;
+package My::ModuleBuild;
 
 use strict;
 use warnings;
