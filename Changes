@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.07      2014-01-29 19:32:39 -0500
   - link against libarchive.a
     instead of   libarchive.so
 
