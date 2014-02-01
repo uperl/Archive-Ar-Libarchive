@@ -44,7 +44,9 @@ circumstances.
 The main advantage of [Archive::Ar](https://metacpan.org/pod/Archive::Ar) over this module is that it is 
 written in pure perl, and thus does not require a compiler or 
 libarchive.  The advantage of this module (at least as of this writing) 
-is that it supports GNU and BSD extensions for longer member filenames.
+is that it supports GNU (read) and BSD (read and write) extensions for 
+longer member filenames.  As an XS module using libarchive it may also
+be faster.
 
 # METHODS
 
@@ -192,14 +194,14 @@ of files successfully removed from the archive.
     $ar->set_output_format_bsd;
 
 Sets the output format produced by [Archive::Ar::Libarchive#write](https://metacpan.org/pod/Archive::Ar::Libarchive#write) to 
-use BSD format. Note: this method is not available in l<Archive::Ar>.
+use BSD format. Note: this method is not available in [Archive::Ar](https://metacpan.org/pod/Archive::Ar).
 
 ## set\_output\_format\_svr4
 
     $ar->set_output_format_svr4;
 
 Sets the output format produced by [Archive::Ar::Libarchive#write](https://metacpan.org/pod/Archive::Ar::Libarchive#write) to 
-System VR4 format. Note: this method is not available in l<Archive::Ar>.
+System VR4 format. Note: this method is not available in [Archive::Ar](https://metacpan.org/pod/Archive::Ar).
 
 ## DEBUG
 
