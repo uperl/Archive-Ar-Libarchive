@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  - only link static (libarchive.a)
+    if Alien::Libarchive was built from source
 
 0.07      2014-01-29 19:32:39 -0500
   - link against libarchive.a

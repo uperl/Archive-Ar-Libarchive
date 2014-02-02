@@ -40,7 +40,8 @@ sub new
   
   unless($ok)
   {
-    $libs = "-Wl,-Bstatic $libs -Wl,-Bdynamic";
+    $libs = "-Wl,-Bstatic $libs -Wl,-Bdynamic"
+      if $alien->install_type eq 'share';
     my $cc = ExtUtils::CChecker->new;
     $cc->push_extra_compiler_flags(shellwords $cflags);
     $cc->push_extra_linker_flags(shellwords($libs));
