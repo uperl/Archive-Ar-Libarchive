@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.09      2014-02-03 17:08:18 -0500
   - more robust check for static libarchive
 
 0.08      2014-02-02 04:35:04 -0500
