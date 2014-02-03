@@ -107,7 +107,7 @@ truncated when written to disk in the format, so keep that in mind
 when adding files.
 
 Due to the nature of the ar archive format, 
-[Archive::Ar::Libarchive#add_files](https://metacpan.org/pod/Archive::Ar::Libarchive#add_files) will store the uid, gid, mode, 
+[Archive::Ar::Libarchive#add\_files](https://metacpan.org/pod/Archive::Ar::Libarchive#add_files) will store the uid, gid, mode, 
 size, and creation date of the file as returned by 
 [stat](https://metacpan.org/pod/perlfunc#stat).
 
@@ -118,8 +118,8 @@ returns the number of files successfully added, or undef on failure.
     my $size = $ar->add_data($filename, $data, $filedata);
 
 Takes an filename and a set of data to represent it. Unlike 
-[Archive::Ar::Libarchive#add_files](https://metacpan.org/pod/Archive::Ar::Libarchive#add_files), 
-[Archive::Ar::Libarchive#add_data](https://metacpan.org/pod/Archive::Ar::Libarchive#add_data) is a virtual add, and does not 
+[Archive::Ar::Libarchive#add\_files](https://metacpan.org/pod/Archive::Ar::Libarchive#add_files), 
+[Archive::Ar::Libarchive#add\_data](https://metacpan.org/pod/Archive::Ar::Libarchive#add_data) is a virtual add, and does not 
 require data on disk to be present. The data is a hash that looks like:
 
     $filedata = {

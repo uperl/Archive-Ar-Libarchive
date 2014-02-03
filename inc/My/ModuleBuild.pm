@@ -15,47 +15,55 @@ sub new
   
   $alien ||= Alien::Libarchive->new;
 
-  my $cflags = $alien->cflags;
-  my $libs   = $alien->libs;
+  $args{extra_compiler_flags} = $alien->cflags;
+  $args{extra_linker_flags}   = $alien->libs;
+  $args{c_source}             = 'xs';
+  
+  my $cc = ExtUtils::CChecker->new( quiet => 1 );
+  $cc->assert_compile_run( source => 'int main(int argc, char *argv[]) { return 0; }' );
   
   if($^O eq 'MSWin32')
   {
-    $cflags .= ' -DLIBARCHIVE_STATIC';
-    $libs =~ s/-larchive\b/-larchive_static/;
+    $args{extra_compiler_flags} .= ' -DLIBARCHIVE_STATIC';
+    $args{extra_linker_flags}    =~ s/-larchive\b/-larchive_static/;
+    $args{extra_linker_flags}    =~ s/\barchive\.lib\b/archive_static.lib/;
+    return $class->SUPER::new(%args);
   }
-
-  my $cc = ExtUtils::CChecker->new;
-  $cc->push_extra_compiler_flags(shellwords $cflags);
-  $cc->push_extra_linker_flags(shellwords $libs);
   
   my $ctest = "#include <archive.h>\n" .
               "int main(int argc, char *argv[]) {\n" .
               "  struct archive *a = archive_read_new();\n" .
               "  return 0;\n" .
               "}\n";
+  my $ok = 0;
+
+  if($alien->install_type eq 'share')
+  {
+    $ok = $cc->try_compile_run(
+      extra_compiler_flags => [ shellwords($args{extra_compiler_flags}) ],
+      extra_linker_flags   => [ '-Wl,-Bstatic', shellwords($args{extra_linker_flags}), '-Wl,-Bdynamic'],
+      source               => $ctest,
+    );
   
-  my $ok = $cc->try_compile_run(
-    source => $ctest,
+    if($ok)
+    {
+      $args{extra_linker_flags} = "-Wl,-Bstatic $args{extra_linker_flags} -Wl,-Bdynamic";
+      return $class->SUPER::new(%args);
+    }
+  }
+
+  $ok = $cc->try_compile_run(
+    extra_compiler_flags => [ shellwords($args{extra_compiler_flags}) ],
+    extra_linker_flags   => [ shellwords($args{extra_linker_flags}) ],
+    source               => $ctest,
   );
   
-  unless($ok)
+  if($ok)
   {
-    $libs = "-Wl,-Bstatic $libs -Wl,-Bdynamic"
-      if $alien->install_type eq 'share';
-    my $cc = ExtUtils::CChecker->new;
-    $cc->push_extra_compiler_flags(shellwords $cflags);
-    $cc->push_extra_linker_flags(shellwords($libs));
-    $cc->assert_compile_run(
-      diag => 'unable to link against libarchive',
-      source => $ctest,
-    );
+    return $class->SUPER::new(%args);
   }
-  
-  $args{extra_compiler_flags} = $cflags;
-  $args{extra_linker_flags}   = $libs;
-  $args{c_source}             = 'xs';
-  
-  $class->SUPER::new(%args);
+
+  die "unable to determine flags to compile / link against libarchive";
 }
 
 1;
