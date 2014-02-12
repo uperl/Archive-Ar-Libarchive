@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  - support for libarchive 2.5.x (MidnightBSD 0.3)
 
 0.09      2014-02-03 17:08:18 -0500
   - more robust check for static libarchive
