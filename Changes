@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  - use archive_read_next_header if archive_read_next_header2 is not available
+    (should help with older versions of libarchive)
 
 0.10      2014-02-12 07:35:15 -0500
   - support for libarchive 2.5.x (MidnightBSD 0.3)

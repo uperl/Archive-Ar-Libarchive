@@ -184,8 +184,14 @@ ar_read_archive(struct archive *archive, struct ar *ar)
 
   while(1)
   {
+#if HAS_has_archive_read_next_header2
     entry = archive_entry_new();
     r = archive_read_next_header2(archive, entry);
+#else
+    struct archive_entry *tmp;
+    r = archive_read_next_header(archive, &tmp);
+    entry = archive_entry_clone(tmp);
+#endif
       
     if(r == ARCHIVE_OK)
       ;
