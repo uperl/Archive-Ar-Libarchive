@@ -55,9 +55,12 @@ sub new
   
   if($^O eq 'MSWin32')
   {
-    $args{extra_compiler_flags} .= ' -DLIBARCHIVE_STATIC';
-    $args{extra_linker_flags}    =~ s/-larchive\b/-larchive_static/;
-    $args{extra_linker_flags}    =~ s/\barchive\.lib\b/archive_static.lib/;
+    if($alien->isa('Alien::Base'))
+    {
+      $args{extra_compiler_flags} .= ' -DLIBARCHIVE_STATIC';
+      $args{extra_linker_flags}    =~ s/-larchive\b/-larchive_static/;
+      $args{extra_linker_flags}    =~ s/\barchive\.lib\b/archive_static.lib/;
+    }
     __PACKAGE__->_other_checks($cc, \%args);
     return $class->SUPER::new(%args);
   }

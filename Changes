@@ -2,6 +2,7 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
   - borrow new test t/50empty.t from Archive::Ar
+  - Alien::Libarchive 0.19 compatability
 
 0.11      2014-02-14 12:05:42 -0500
   - use archive_read_next_header if archive_read_next_header2 is not available
