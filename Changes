@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.12      2014-06-10 10:02:28 -0400
   - borrow new test t/50empty.t from Archive::Ar
   - Alien::Libarchive 0.19 compatability
 
