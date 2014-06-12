@@ -251,13 +251,6 @@ the permissions and modification time stored in the archive, and, if
 possible, the user and group ownership.  Returns true on success,
 C<undef> for faiure.
 
-=cut
-
-sub extract_file
-{
-  # TODO
-}
-
 =head2 rename
 
  $ar->rename($filename, $newname);
