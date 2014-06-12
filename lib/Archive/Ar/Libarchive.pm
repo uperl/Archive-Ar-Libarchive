@@ -288,13 +288,6 @@ sub extract_file
 
 Changes the name of a file in the in-memory archive.
 
-=cut
-
-sub rename
-{
-  # TODO
-}
-
 =head2 chmod
 
 TODO

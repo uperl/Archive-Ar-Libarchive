@@ -621,3 +621,21 @@ get_content(self, filename)
   OUTPUT:
     RETVAL
 
+void
+rename(self, old, new)
+    struct ar *self
+    const char *old
+    const char *new
+  CODE:
+    struct ar_entry *entry;
+    
+    entry = self->first;
+    
+    while(entry != NULL)
+    {
+      if(!strcmp(archive_entry_pathname(entry->entry), old))
+      {
+        archive_entry_set_pathname(entry->entry, new);
+      }
+      entry = entry->next;
+    }
