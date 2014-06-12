@@ -2,8 +2,12 @@ package Archive::Ar::Libarchive;
 
 use strict;
 use warnings;
+use base qw( Exporter );
+use constant COMMON => 1;
+use constant BSD    => 2;
+use constant GNU    => 3;
 use Carp qw( carp );
-use File::Basename qw( basename );
+use File::Basename ();
 
 # ABSTRACT: Interface for manipulating ar archives with libarchive
 # VERSION
@@ -16,6 +20,8 @@ unless($^O eq 'MSWin32')
 
 require XSLoader;
 XSLoader::load('Archive::Ar::Libarchive', $VERSION);
+
+our @EXPORT_OK = qw( COMMON BSD GNU );
 
 =head1 SYNOPSIS
 
@@ -52,9 +58,8 @@ The interface attempts to be identical (with a couple of minor
 extensions) to L<Archive::Ar> and the documentation presented here is 
 based on that module. The diagnostic messages issued on error mostly 
 come directly from libarchive, so they will likely not match exactly 
-what L<Archive::Ar> would produce, but it should issue a warning (when 
-L<Archive::Ar::Libarchive#DEBUG> is turned on) under similar 
-circumstances.
+what L<Archive::Ar> would produce, but it should issue a warning under
+similar  circumstances.
 
 The main advantage of L<Archive::Ar> over this module is that it is 
 written in pure perl, and thus does not require a compiler or 
@@ -63,23 +68,22 @@ is that it supports GNU (read) and BSD (read and write) extensions for
 longer member filenames.  As an XS module using libarchive it may also
 be faster.
 
+You may notice that the API to L<Archive::Ar::Libarchive> and
+L<Archive::Ar> is similar to L<Archive::Tar> and this was done
+intentionally to keep similarity between the Archive::* modules.
+
 =head1 METHODS
 
 =head2 new
 
  my $ar = Archive::Ar::Libarchive->new;
  my $ar = Archive::Ar::Libarchive->new($filename);
- my $ar = Archive::Ar::Libarchive->new($fh, $debug);
+ my $ar = Archive::Ar::Libarchive->new($fh);
 
 Returns a new L<Archive::AR::Libarchive> object.  Without a filename or 
 glob, it returns an empty object.  If passed a filename as a scalar or a 
 GLOB, it will attempt to populate from either of those sources.  If it 
-fails, you will receive undef, instead of an object reference.
-
-This also can take a second optional debugging parameter.  This acts 
-exactly as if L<Archive::Ar::Libarchive#DEBUG> is called on the object 
-before it is returned.  If you have a L<Archive::Ar::Libarchive#new> 
-that keeps failing, this should help.
+fails, you will receive C<undef>, instead of an object reference.
 
 =cut
 
@@ -100,15 +104,99 @@ sub new
   $self;
 }
 
+=head2 set_opt
+
+ $ar->set_opt($name, $value);
+
+Assign option C<$name> value C<$value>.  Supported options include:
+
+=over 4
+
+=item warn
+
+Warning level.  Levels are zero for no warnings, 1 for brief warnings,
+and 2 for warnings with a stack trace.  Default is zero.
+
+=item chmod
+
+Change the file permissions of files created when extracting.  Default
+is true (non-zero).
+
+=item same_perms
+
+When setting file permissions, use the values in the archive unchanged.
+If false, removes setuid bits and applies the user's umask.  Default
+is true for the root user, false otherwise.
+
+=item chown
+
+Change the owners of extracted files, if possible.  Default is true.
+
+=item
+
+Archive type.  May be GNU, BSD or COMMON, or undef if no archive
+has been read.  Defaults to the type of the archive read or C<undef>.
+
+=cut
+
+sub set_opt
+{
+  # TODO
+}
+
+=head2 get_opt
+
+ my $value = $ar->get_opt($name);
+
+Returns the value of the option C<$name>.
+
+=cut
+
+sub get_opt
+{
+  # TODO
+}
+
+=head2 type
+
+ my $type = $ar->type;
+
+Returns the type of the ar archive.  The type is undefined until an archive
+is loaded.  If the archive displays characteristics of a gnu-style archive,
+GNU is returned.  If it looks like a bsd-style archive, BSD is returned.
+Otherwise, COMMON is returned.  Note that unless filenames exceed 16
+characters in length, bsd archives look like the common format.
+
+=cut
+
+sub type
+{
+  # TODO
+  COMMON;
+}
+
+=head2 clear
+
+ $ar->clear;
+
+Clears the current in-memory archive.
+
+=cut
+
+sub clear
+{
+  # TODO
+}
+
 =head2 read
 
  my $br = $ar->read($filename);
  my $br = $ar->read($fh);
 
 This reads a new file into the object, removing any ar archive already
-represented in the object.
-
-Returns the number of bytes read, undef on failure.
+represented in the object.  The argument may be either a filename,
+filehandle or IO::Handle object.  Returns the number of bytes read,
+C<undef> on failure.
 
 =cut
 
@@ -143,7 +231,7 @@ This reads information from the first parameter, and attempts to parse
 and treat it like an ar archive. Like L<Archive::Ar::Libarchive#read>, 
 it will wipe out whatever you have in the object and replace it with the 
 contents of the new archive, even if it fails. Returns the number of 
-bytes read (processed) if successful, undef otherwise.
+bytes read (processed) if successful, C<undef> otherwise.
 
 =cut
 
@@ -156,6 +244,109 @@ sub read_memory
   my $ret = $self->read($fh);
   
   $ret;
+}
+
+=head2 contains_file
+
+ my $bool = $ar->contains_file($filename)
+
+Returns true if the archive contains a file with the name C<$filename>.
+Returns C<undef> otherwise.
+
+=cut
+
+sub contains_file
+{
+  # TODO
+}
+
+=head2 extract
+
+ $ar->extract;
+
+Extract all files from the archive.  Extracted files are assigned the
+permissions and modification time stored in the archive, and, if possible,
+the user and group ownership.  Returns true on success, or C<undef>
+for failure.
+
+=cut
+
+sub extract
+{
+  # TODO
+}
+
+=head2 extract_file
+
+ $ar->extract_file($filename);
+
+Extracts a single file from the archive.  The extracted file is assigned
+the permissions and modification time stored in the archive, and, if
+possible, the user and group ownership.  Returns true on success,
+C<undef> for faiure.
+
+=cut
+
+sub extract_file
+{
+  # TODO
+}
+
+=head2 rename
+
+ $ar->rename($filename, $newname);
+
+Changes the name of a file in the in-memory archive.
+
+=cut
+
+sub rename
+{
+  # TODO
+}
+
+=head2 chmod
+
+TODO
+
+=cut
+
+sub chmod
+{
+  # TODO
+}
+
+=head2 chown
+
+TODO
+
+=cut
+
+sub chown
+{
+  # TODO
+}
+
+=head2 remove
+
+ my $count = $ar->remove(@pathnames);
+ my $count = $ar->remove(\@pathnames);
+
+The remove method takes a filenames as a list or as an arrayref, and removes
+them, one at a time, from the Archive::Ar object.  This returns the number
+of files successfully removed from the archive.
+
+=cut
+
+sub remove
+{
+  my $self = shift;
+  my $count = 0;
+  foreach my $pathname (@{ ref $_[0] ? $_[0] : \@_ })
+  {
+    $count += $self->_remove($pathname);
+  }
+  $count;
 }
 
 =head2 list_files
@@ -191,7 +382,7 @@ L<Archive::Ar::Libarchive#add_files> will store the uid, gid, mode,
 size, and creation date of the file as returned by 
 L<stat|perlfunc#stat>.
 
-returns the number of files successfully added, or undef on failure.
+returns the number of files successfully added, or C<undef> on failure.
 
 =cut
 
@@ -224,7 +415,7 @@ sub add_files
     my $data = do { local $/; <$fh> };
     close $fh;
     
-    $self->add_data(basename($filename), $data, {
+    $self->add_data(File::Basename::basename($filename), $data, {
       date => $props[9],
       uid  => $props[4],
       gid  => $props[5],
@@ -255,7 +446,7 @@ require data on disk to be present. The data is a hash that looks like:
  };
 
 You cannot add_data over another file however.  This returns the file 
-length in bytes if it is successful, undef otherwise.
+length in bytes if it is successful, C<undef> otherwise.
 
 =cut
 
@@ -276,7 +467,7 @@ sub add_data
 This method will return the data as an .ar archive, or will write to the 
 filename present if specified. If given a filename, 
 L<Archive::Ar::Libarchive#write> will return the length of the file 
-written, in bytes, or undef on failure. If the filename already exists, 
+written, in bytes, or C<undef> on failure. If the filename already exists, 
 it will overwrite that file.
 
 =cut
@@ -323,7 +514,7 @@ sub write
 
 This returns a hash with the file content in it, including the data that the
 file would naturally contain.  If the file does not exist or no filename is
-given, this returns undef. On success, a hash is returned with the following
+given, this returns C<undef>. On success, a hash is returned with the following
 keys:
 
 =over 4
@@ -358,26 +549,48 @@ The contained data
 
 =back
 
-=head2 remove
+=head1 get_data
 
- my $count = $ar->remove(@pathnames);
- my $count = $ar->remove(\@pathnames);
+ my $data = $ar->get_data($filename);
 
-The remove method takes a filenames as a list or as an arrayref, and removes
-them, one at a time, from the Archive::Ar object.  This returns the number
-of files successfully removed from the archive.
+Returns a scalar containing the file data of the given archive member.
+On error returns C<undef>.
 
 =cut
 
-sub remove
+sub get_data
 {
-  my $self = shift;
-  my $count = 0;
-  foreach my $pathname (@{ ref $_[0] ? $_[0] : \@_ })
-  {
-    $count += $self->_remove($pathname);
-  }
-  $count;
+  # TODO
+}
+
+=head2 get_handle
+
+ my $handle = $ar->get_handle($filename);
+
+Returns a file handle to the in-memory file data of the given archive
+member.  On error returns C<undef>.  This can be useful for unpacking
+nested archives.
+
+=cut
+
+sub get_handle
+{
+  # TODO
+}
+
+=head2 error
+
+ my $error_string = $ar->error($trace);
+
+Returns the current error string, which is usually the last error
+reported.  If a true value is provided, returns the error message
+and stack trace.
+
+=cut
+
+sub error
+{
+  # TODO
 }
 
 =head2 set_output_format_bsd
@@ -394,18 +607,11 @@ use BSD format. Note: this method is not available in L<Archive::Ar>.
 Sets the output format produced by L<Archive::Ar::Libarchive#write> to 
 System VR4 format. Note: this method is not available in L<Archive::Ar>.
 
-=head2 DEBUG
-
- $ar->DEBUG;
- $ar->DEBUG(0);
-
-This method turns on debugging.  To Turn off pass a false value in as 
-the argument.
-
 =cut
 
 sub DEBUG
 {
+  # deprecated
   my($self, $value) = @_;
   $value = 1 unless defined $value;
   $self->_set_debug($value);
