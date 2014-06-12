@@ -241,13 +241,6 @@ sub read_memory
 Returns true if the archive contains a file with the name C<$filename>.
 Returns C<undef> otherwise.
 
-=cut
-
-sub contains_file
-{
-  # TODO
-}
-
 =head2 extract
 
  $ar->extract;

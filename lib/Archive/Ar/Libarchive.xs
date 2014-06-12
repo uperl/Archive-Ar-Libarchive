@@ -766,3 +766,28 @@ type(self)
     RETVAL = self->opt_type;
   OUTPUT:
     RETVAL
+
+
+int
+contains_file(self, filename)
+    struct ar *self
+    const char *filename
+  CODE:
+    struct ar_entry *entry;
+    entry = self->first;
+    int found = 0;
+    
+    while(entry != NULL)
+    {
+      if(!strcmp(archive_entry_pathname(entry->entry),filename))
+      {
+        found = 1;
+        break;
+      }
+      entry = entry->next;
+    }
+    
+    if(found)
+      RETVAL = 1;
+    else
+      XSRETURN_EMPTY;
