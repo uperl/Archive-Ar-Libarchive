@@ -24,16 +24,25 @@
 # endif
 #endif
 
-#define FORMAT_BSD  1
-#define FORMAT_SVR4 2
+#define ARCHIVE_AR_UNDEF   0
+#define ARCHIVE_AR_COMMON  1
+#define ARCHIVE_AR_BSD     2
+#define ARCHIVE_AR_GNU     3
 
 struct ar_entry;
 
 struct ar {
   struct ar_entry *first;
-  int debug;
-  int output_format;
   SV *callback;
+
+  unsigned int opt_warn       : 2;
+  unsigned int opt_chmod      : 1;
+  unsigned int opt_same_perms : 1;
+  unsigned int opt_chown      : 1;
+  unsigned int opt_type       : 2;
+ 
+  SV *error;
+  SV *longmess;
 };
 
 struct ar_entry {
@@ -55,7 +64,12 @@ static void
 ar_reset(struct ar *ar)
 {
   struct ar_entry *entry, *old;
-  
+
+  if(ar->error != NULL)
+    SvREFCNT_dec(ar->error);
+  if(ar->longmess != NULL)
+    SvREFCNT_dec(ar->longmess);
+
   entry = ar->first;
   while(entry != NULL)
   {
@@ -151,7 +165,7 @@ ar_write_archive(struct archive *archive, struct ar *ar)
     r = archive_write_header(archive, entry->entry);
     if(r < ARCHIVE_OK)
     {
-      if(ar->debug)
+      if(ar->opt_warn)
         warn("%s", archive_error_string(archive));
       if(r != ARCHIVE_WARN)
         return 0;
@@ -159,7 +173,7 @@ ar_write_archive(struct archive *archive, struct ar *ar)
     r = archive_write_data(archive, entry->data, entry->data_size);
     if(r < ARCHIVE_OK)
     {
-      if(ar->debug)
+      if(ar->opt_warn)
         warn("%s", archive_error_string(archive));
       if(r != ARCHIVE_WARN)
         return 0;
@@ -197,7 +211,7 @@ ar_read_archive(struct archive *archive, struct ar *ar)
       ;
     else if(r == ARCHIVE_WARN)
     {
-      if(ar->debug)
+      if(ar->opt_warn)
         warn("%s", archive_error_string(archive));
     }
     else if(r == ARCHIVE_EOF)
@@ -222,13 +236,13 @@ ar_read_archive(struct archive *archive, struct ar *ar)
 
     r = archive_read_data(archive, (void*)next->data, next->data_size);
 
-    if(r == ARCHIVE_WARN && ar->debug)
+    if(r == ARCHIVE_WARN && ar->opt_warn)
     {
       warn("%s", archive_error_string(archive));
     }
     else if(r < ARCHIVE_OK && r != ARCHIVE_EOF)
     {
-      if(ar->debug)
+      if(ar->opt_warn)
         warn("%s", archive_error_string(archive));
       Safefree(next->data);
       Safefree(next);
@@ -251,16 +265,86 @@ MODULE = Archive::Ar::Libarchive   PACKAGE = Archive::Ar::Libarchive
 BOOT:
      PERL_MATH_INT64_LOAD_OR_CROAK;
 
+/*
+  unsigned int opt_warn       : 2;
+  unsigned int opt_chmod      : 1;
+  unsigned int opt_same_perms : 1;
+  unsigned int opt_chown      : 1;
+  unsigned int opt_type       : 2; */
+
 struct ar*
 _new()
   CODE:
     struct ar *self;
     Newx(self, 1, struct ar);
-    self->first         = NULL;
-    self->debug         = 1;
-    self->output_format = FORMAT_SVR4;
-    self->callback      = NULL;
+    self->first          = NULL;
+    self->callback       = NULL;
+    self->opt_warn       = 0;
+    self->opt_chmod      = 1;
+    self->opt_same_perms = 1;  /* TODO: root only */
+    self->opt_chown      = 1;
+    self->opt_type       = ARCHIVE_AR_UNDEF;
+    self->error          = NULL;
+    self->longmess       = NULL;
     RETVAL = self;
+  OUTPUT:
+    RETVAL
+
+int
+set_opt(self, name, value)
+    struct ar *self
+    const char *name
+    int value
+  CODE:
+    if(!strcmp(name, "warn"))
+      RETVAL = self->opt_warn = value;
+    else if(!strcmp(name, "chmod"))
+      RETVAL = self->opt_chmod = value;
+    else if(!strcmp(name, "same_perms"))
+      RETVAL = self->opt_same_perms = value;
+    else if(!strcmp(name, "chown"))
+      RETVAL = self->opt_chown = value;
+    else if(!strcmp(name, "type"))
+      RETVAL = self->opt_type = value;
+    else
+      warn("unknown or unsupported option %s", name);
+  OUTPUT:
+    RETVAL
+
+int
+get_opt(self, name)
+    struct ar *self
+    const char *name
+  CODE:
+    if(!strcmp(name, "warn"))
+      RETVAL = self->opt_warn;
+    else if(!strcmp(name, "chmod"))
+      RETVAL = self->opt_chmod;
+    else if(!strcmp(name, "same_perms"))
+      RETVAL = self->opt_same_perms;
+    else if(!strcmp(name, "chown"))
+      RETVAL = self->opt_chown;
+    else if(!strcmp(name, "type"))
+      RETVAL = self->opt_type;
+    else
+      warn("unknown or unsupported option %s", name);
+  OUTPUT:
+    RETVAL
+
+void
+_set_error(self, message, longmess)
+    struct ar *self
+    SV *message
+    SV *longmess
+  CODE:
+    self->error = SvREFCNT_inc(message);
+    self->longmess = SvREFCNT_inc(longmess);
+
+SV *
+error(self)
+    struct ar *self
+  CODE:
+    RETVAL = self->error;
   OUTPUT:
     RETVAL
 
@@ -279,13 +363,13 @@ _read_from_filename(self, filename)
     r = archive_read_open_filename(archive, filename, 1024);
     if(r == ARCHIVE_OK || r == ARCHIVE_WARN)
     {
-      if(r == ARCHIVE_WARN && self->debug)
+      if(r == ARCHIVE_WARN && self->opt_warn)
         warn("%s", archive_error_string(archive));
       RETVAL = ar_read_archive(archive, self);
     }
     else
     {
-      if(self->debug)
+      if(self->opt_warn)
         warn("%s", archive_error_string(archive));
       RETVAL = 0;
     }
@@ -314,7 +398,7 @@ _read_from_callback(self, callback)
 
     if(r == ARCHIVE_OK || r == ARCHIVE_WARN)
     {
-      if(r == ARCHIVE_WARN && self->debug)
+      if(r == ARCHIVE_WARN && self->opt_warn)
         warn("%s", archive_error_string(archive));
       RETVAL = ar_read_archive(archive, self);
     }
@@ -342,14 +426,16 @@ _write_to_filename(self, filename)
     int r;
     
     archive = archive_write_new();
-    if(self->output_format == FORMAT_BSD)
+    if(self->opt_type == ARCHIVE_AR_BSD)
       r = archive_write_set_format_ar_bsd(archive);
+    else if(self->opt_type == ARCHIVE_AR_GNU)
+      croak("output format GNU is not supported by Archive::Ar::Libarchive");
     else
       r = archive_write_set_format_ar_svr4(archive);
-    if(r != ARCHIVE_OK && self->debug)
+    if(r != ARCHIVE_OK && self->opt_warn)
       warn("%s", archive_error_string(archive));
     r = archive_write_open_filename(archive, filename);
-    if(r != ARCHIVE_OK && self->debug)
+    if(r != ARCHIVE_OK && self->opt_warn)
       warn("%s", archive_error_string(archive));
     if(r == ARCHIVE_OK || r == ARCHIVE_WARN)
       RETVAL = ar_write_archive(archive, self);
@@ -374,14 +460,16 @@ _write_to_callback(self, callback)
     self->callback = SvREFCNT_inc(callback);
 
     archive = archive_write_new();
-    if(self->output_format == FORMAT_BSD)
+    if(self->opt_type == ARCHIVE_AR_BSD)
       r = archive_write_set_format_ar_bsd(archive);
+    else if(self->opt_type == ARCHIVE_AR_GNU)
+      croak("output format GNU is not supported by Archive::Ar::Libarchive");
     else
-      r = archive_write_set_format_ar_svr4(archive);    
-    if(r != ARCHIVE_OK && self->debug)
+      r = archive_write_set_format_ar_svr4(archive);
+    if(r != ARCHIVE_OK && self->opt_warn)
       warn("%s", archive_error_string(archive));
     r = archive_write_open(archive, (void*)self, NULL, ar_write_callback, ar_close_callback);
-    if(r != ARCHIVE_OK && self->debug)
+    if(r != ARCHIVE_OK && self->opt_warn)
       warn("%s", archive_error_string(archive));
     if(r == ARCHIVE_OK || r == ARCHIVE_WARN)
       RETVAL = ar_write_archive(archive, self);
@@ -484,23 +572,6 @@ _list_files(self)
   OUTPUT:
     RETVAL
 
-int
-_get_debug(self)
-    struct ar *self
-  CODE:
-    RETVAL = self->debug;
-  OUTPUT:
-    RETVAL
-
-void
-_set_debug(self, value)
-    struct ar *self
-    int value
-  CODE:
-    self->debug = value;
-  OUTPUT:
-    RETVAL
-
 void
 DESTROY(self)
     struct ar *self
@@ -550,14 +621,3 @@ get_content(self, filename)
   OUTPUT:
     RETVAL
 
-void
-set_output_format_bsd(self)
-    struct ar *self
-  CODE:
-    self->output_format = FORMAT_BSD;
-
-void
-set_output_format_svr4(self)
-    struct ar *self
-  CODE:
-    self->output_format = FORMAT_SVR4;

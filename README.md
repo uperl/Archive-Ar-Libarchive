@@ -90,10 +90,14 @@ Assign option `$name` value `$value`.  Supported options include:
 
     Change the owners of extracted files, if possible.  Default is true.
 
-- 
+- type
 
     Archive type.  May be GNU, BSD or COMMON, or undef if no archive
     has been read.  Defaults to the type of the archive read or `undef`.
+
+    Note that libarchive can read GNU style ar files, but it cannot write
+    to them.  If you attempt to write using [Archive::Ar::Libarchive](https://metacpan.org/pod/Archive::Ar::Libarchive)
+    when type is set to GNU, it will throw an exception.
 
 ## get\_opt
 
@@ -302,19 +306,10 @@ Returns the current error string, which is usually the last error
 reported.  If a true value is provided, returns the error message
 and stack trace.
 
-## set\_output\_format\_bsd
+# CAVEATS
 
-    $ar->set_output_format_bsd;
-
-Sets the output format produced by [Archive::Ar::Libarchive#write](https://metacpan.org/pod/Archive::Ar::Libarchive#write) to 
-use BSD format. Note: this method is not available in [Archive::Ar](https://metacpan.org/pod/Archive::Ar).
-
-## set\_output\_format\_svr4
-
-    $ar->set_output_format_svr4;
-
-Sets the output format produced by [Archive::Ar::Libarchive#write](https://metacpan.org/pod/Archive::Ar::Libarchive#write) to 
-System VR4 format. Note: this method is not available in [Archive::Ar](https://metacpan.org/pod/Archive::Ar).
+libarchive cannot write GNU style ar files.  If you need to do that, you should
+use [Archive::Ar](https://metacpan.org/pod/Archive::Ar) instead.
 
 # SEE ALSO
 
@@ -336,10 +331,6 @@ the same terms as the Perl 5 programming language system itself.
 
 Hey! **The above document had some coding errors, which are explained below:**
 
-- Around line 103:
-
-    Expected text after =item, not a bullet
-
-- Around line 108:
+- Around line 112:
 
     You forgot a '=back' before '=head2'

@@ -6,7 +6,7 @@ use base qw( Exporter );
 use constant COMMON => 1;
 use constant BSD    => 2;
 use constant GNU    => 3;
-use Carp qw( carp );
+use Carp qw( carp longmess );
 use File::Basename ();
 
 # ABSTRACT: Interface for manipulating ar archives with libarchive
@@ -97,7 +97,7 @@ sub new
   {
     unless($self->read($filename_or_handle))
     {
-      return $self->_warn("new() failed on filename for filehandle read");
+      return $self->_error("new() failed on filename for filehandle read");
     }
   }
   
@@ -132,30 +132,20 @@ is true for the root user, false otherwise.
 
 Change the owners of extracted files, if possible.  Default is true.
 
-=item
+=item type
 
 Archive type.  May be GNU, BSD or COMMON, or undef if no archive
 has been read.  Defaults to the type of the archive read or C<undef>.
 
-=cut
-
-sub set_opt
-{
-  # TODO
-}
+Note that libarchive can read GNU style ar files, but it cannot write
+to them.  If you attempt to write using L<Archive::Ar::Libarchive>
+when type is set to GNU, it will throw an exception.
 
 =head2 get_opt
 
  my $value = $ar->get_opt($name);
 
 Returns the value of the option C<$name>.
-
-=cut
-
-sub get_opt
-{
-  # TODO
-}
 
 =head2 type
 
@@ -394,18 +384,18 @@ sub add_files
   {
     unless(-r $filename)
     {
-      $self->_warn("No such file: $filename");
+      $self->_error("No such file: $filename");
       next;
     }
     my @props = stat($filename);
     unless(@props)
     {
-      $self->_warn("Could not stat $filename.");
+      $self->_error("Could not stat $filename.");
       next;
     }
     
     open(my $fh, '<', $filename) || do {
-      $self->_warn("Unable to open $filename $!");
+      $self->_error("Unable to open $filename $!");
       next;
     };
     binmode $fh;
@@ -588,44 +578,49 @@ and stack trace.
 
 =cut
 
-sub error
+sub set_output_format_bsd
 {
-  # TODO
+  carp "set_output_format_bsd is deprecated, use \$ar->set_opt(type => BSD) instead";
+  shift->set_opt(type => BSD);
 }
 
-=head2 set_output_format_bsd
-
- $ar->set_output_format_bsd;
-
-Sets the output format produced by L<Archive::Ar::Libarchive#write> to 
-use BSD format. Note: this method is not available in L<Archive::Ar>.
-
-=head2 set_output_format_svr4
-
- $ar->set_output_format_svr4;
-
-Sets the output format produced by L<Archive::Ar::Libarchive#write> to 
-System VR4 format. Note: this method is not available in L<Archive::Ar>.
-
-=cut
+sub set_output_format_svr4
+{
+  carp "set_output_format_bsd is deprecated, use \$ar->set_opt(type => COMMON) instead";
+  shift->set_opt(type => COMMON);
+}
 
 sub DEBUG
 {
-  # deprecated
+  carp "DEBUG is deprecated, use \$ar->set_opt(\"warn\", 1) instead";
   my($self, $value) = @_;
-  $value = 1 unless defined $value;
-  $self->_set_debug($value);
-  return;
+  $self->set_opt(warn => 1) unless defined $value and $value == 0;
 }
 
-sub _warn
+sub _error
 {
-  my($self, $warning) = @_;
-  carp $warning if $self->_get_debug;
+  my($self, $message) = @_;
+  # TODO: XS should call back to this function
+  my $opt_warn = $self->get_opt('warn');
+  my $longmess = longmess $message;
+  $self->_set_error($message, $longmess);
+  if($opt_warn > 1)
+  {
+    carp $longmess;
+  }
+  elsif($opt_warn)
+  {
+    carp $message;
+  }
   return;
 }
 
 1;
+
+=head1 CAVEATS
+
+libarchive cannot write GNU style ar files.  If you need to do that, you should
+use L<Archive::Ar> instead.
 
 =head1 SEE ALSO
 
