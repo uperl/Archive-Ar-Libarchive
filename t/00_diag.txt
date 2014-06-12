@@ -3,4 +3,5 @@ ExtUtils::CChecker
 File::Basename
 Math::Int64
 Module::Build
+Test::MockObject
 Test::More
