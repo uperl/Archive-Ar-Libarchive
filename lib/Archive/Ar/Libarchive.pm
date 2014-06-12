@@ -586,7 +586,6 @@ sub DEBUG
 sub _error
 {
   my($self, $message) = @_;
-  # TODO: XS should call back to this function
   my $opt_warn = $self->get_opt('warn');
   my $longmess = longmess $message;
   $self->_set_error($message, $longmess);

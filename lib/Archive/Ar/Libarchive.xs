@@ -32,6 +32,10 @@
 #define _error(ar, message) {                                                   \
         if(ar->opt_warn)                                                        \
           warn("%s", message);                                                  \
+        if(ar->error != NULL)                                                   \
+          SvREFCNT_dec(ar->error);                                              \
+        if(ar->longmess != NULL)                                                \
+          SvREFCNT_dec(ar->longmess);                                           \
         ar->error = ar->longmess = SvREFCNT_inc(newSVpv(message,0));            \
       }
 
@@ -75,6 +79,9 @@ ar_reset(struct ar *ar)
     SvREFCNT_dec(ar->error);
   if(ar->longmess != NULL)
     SvREFCNT_dec(ar->longmess);
+
+  ar->error    = NULL;
+  ar->longmess = NULL;
 
   entry = ar->first;
   while(entry != NULL)
@@ -354,15 +361,23 @@ _set_error(self, message, longmess)
     SV *message
     SV *longmess
   CODE:
+    if(self->error != NULL)
+      SvREFCNT_dec(self->error);
+    if(self->longmess != NULL)
+      SvREFCNT_dec(self->longmess);
     self->error = SvREFCNT_inc(message);
     self->longmess = SvREFCNT_inc(longmess);
 
 SV *
-error(self)
+error(self, ...)
     struct ar *self
   CODE:
-    /* TODO trace argument returns the longmess */
-    RETVAL = self->error;
+    if(self->error == NULL)
+      XSRETURN_EMPTY;
+    if(items >= 2 && SvTRUE(ST(1)))
+      RETVAL = SvREFCNT_inc(self->longmess);
+    else
+      RETVAL = SvREFCNT_inc(self->error);
   OUTPUT:
     RETVAL
 
