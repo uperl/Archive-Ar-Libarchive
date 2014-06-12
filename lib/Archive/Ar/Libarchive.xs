@@ -621,6 +621,33 @@ get_content(self, filename)
   OUTPUT:
     RETVAL
 
+
+SV *
+_broken_get_data(self, filename)
+    struct ar *self
+    const char *filename
+  CODE:
+    struct ar_entry *entry;
+    int found = 0;
+    
+    entry = self->first;
+    
+    while(entry != NULL)
+    {
+      if(!strcmp(archive_entry_pathname(entry->entry), filename))
+      {
+        RETVAL = sv_2mortal(newSVpv(entry->data, entry->data_size));
+        found = 1;
+        break;
+      }
+      entry = entry->next;
+    }
+    
+    if(!found)
+    {
+      XSRETURN_EMPTY;
+    }
+
 void
 rename(self, old, new)
     struct ar *self

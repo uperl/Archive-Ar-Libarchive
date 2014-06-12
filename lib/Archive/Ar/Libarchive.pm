@@ -544,7 +544,7 @@ On error returns C<undef>.
 
 sub get_data
 {
-  # TODO
+  shift->get_content(@_)->{data};
 }
 
 =head2 get_handle
@@ -559,7 +559,10 @@ nested archives.
 
 sub get_handle
 {
-  # TODO
+  my $data = shift->get_data(@_);
+  return unless defined $data;
+  open my $fh, '<', \$data;
+  $fh;
 }
 
 =head2 error
