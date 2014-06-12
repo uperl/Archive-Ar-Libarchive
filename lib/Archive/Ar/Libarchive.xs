@@ -93,6 +93,8 @@ ar_reset(struct ar *ar)
   }
   
   ar->first = NULL;
+  
+  ar->opt_type       = ARCHIVE_AR_UNDEF;
 }
 
 static struct ar_entry*
@@ -342,13 +344,13 @@ _new()
     Newx(self, 1, struct ar);
     self->first          = NULL;
     self->callback       = NULL;
-    self->opt_warn       = 0;
-    self->opt_chmod      = 1;
-    self->opt_same_perms = 1;  /* TODO: root only */
-    self->opt_chown      = 1;
-    self->opt_type       = ARCHIVE_AR_UNDEF;
     self->error          = NULL;
     self->longmess       = NULL;
+    self->opt_warn       = 0;
+    self->opt_chmod      = 1;
+    self->opt_same_perms = 1;  /* TODO: root only ? */
+    self->opt_chown      = 1;
+    ar_reset(self);
     RETVAL = self;
   OUTPUT:
     RETVAL
@@ -820,3 +822,10 @@ contains_file(self, filename)
       RETVAL = 1;
     else
       XSRETURN_EMPTY;
+
+
+void
+clear(self)
+    struct ar *self
+  CODE:
+    ar_reset(self);

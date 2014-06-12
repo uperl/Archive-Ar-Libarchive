@@ -168,13 +168,6 @@ characters in length, bsd archives look like the common format.
 
 Clears the current in-memory archive.
 
-=cut
-
-sub clear
-{
-  # TODO
-}
-
 =head2 read
 
  my $br = $ar->read($filename);
