@@ -95,6 +95,23 @@ ar_reset(struct ar *ar)
   ar->first = NULL;
 }
 
+static struct ar_entry*
+ar_find_by_name(struct ar *ar, const char *filename)
+{
+  struct ar_entry *entry;
+  
+  entry = ar->first;
+  
+  while(entry != NULL)
+  {
+    if(!strcmp(archive_entry_pathname(entry->entry), filename))
+      return entry;
+    entry = entry->next;
+  }
+  
+  return NULL;
+}
+
 static __LA_SSIZE_T
 ar_read_callback(struct archive *archive, void *cd, const void **buffer)
 {
@@ -288,13 +305,6 @@ MODULE = Archive::Ar::Libarchive   PACKAGE = Archive::Ar::Libarchive
 
 BOOT:
      PERL_MATH_INT64_LOAD_OR_CROAK;
-
-/*
-  unsigned int opt_warn       : 2;
-  unsigned int opt_chmod      : 1;
-  unsigned int opt_same_perms : 1;
-  unsigned int opt_chown      : 1;
-  unsigned int opt_type       : 2; */
 
 struct ar*
 _new()
@@ -620,33 +630,25 @@ get_content(self, filename)
     HV *hv;
     int found;
     
-    entry = self->first;
-    found = 0;
+    entry = ar_find_by_name(self, filename);
     
-    while(entry != NULL)
+    if(entry != NULL)
     {
-      if(!strcmp(archive_entry_pathname(entry->entry), filename))
-      {
-        hv = newHV();
+      hv = newHV();
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-value"
-        hv_store(hv, "name", 4, newSVpv(filename, strlen(filename)),         0);
-        hv_store(hv, "date", 4, newSVi64(archive_entry_mtime(entry->entry)), 0);
-        hv_store(hv, "uid",  3, newSVi64(archive_entry_uid(entry->entry)),   0);
-        hv_store(hv, "gid",  3, newSVi64(archive_entry_gid(entry->entry)),   0);
-        hv_store(hv, "mode", 4, newSViv(archive_entry_mode(entry->entry)),   0);
-        hv_store(hv, "size", 4, newSViv(entry->data_size),                   0);
-        hv_store(hv, "data", 4, newSVpv(entry->data, entry->data_size),      0);
+      hv_store(hv, "name", 4, newSVpv(filename, strlen(filename)),         0);
+      hv_store(hv, "date", 4, newSVi64(archive_entry_mtime(entry->entry)), 0);
+      hv_store(hv, "uid",  3, newSVi64(archive_entry_uid(entry->entry)),   0);
+      hv_store(hv, "gid",  3, newSVi64(archive_entry_gid(entry->entry)),   0);
+      hv_store(hv, "mode", 4, newSViv(archive_entry_mode(entry->entry)),   0);
+      hv_store(hv, "size", 4, newSViv(entry->data_size),                   0);
+      hv_store(hv, "data", 4, newSVpv(entry->data, entry->data_size),      0);
 #pragma clang diagnostic pop
-        RETVAL = newRV_noinc((SV*)hv);
+      RETVAL = newRV_noinc((SV*)hv);
       
-        found = 1;
-        break;
-      }
-      entry = entry->next;
     }
-    
-    if(!found)
+    else
     {
       XSRETURN_EMPTY;
     }
@@ -687,17 +689,9 @@ rename(self, old, new)
     const char *new
   CODE:
     struct ar_entry *entry;
-    
-    entry = self->first;
-    
-    while(entry != NULL)
-    {
-      if(!strcmp(archive_entry_pathname(entry->entry), old))
-      {
-        archive_entry_set_pathname(entry->entry, new);
-      }
-      entry = entry->next;
-    }
+    entry = ar_find_by_name(self, old);
+    if(entry != NULL)
+      archive_entry_set_pathname(entry->entry, new);
 
 int
 extract(self)
@@ -773,21 +767,7 @@ contains_file(self, filename)
     struct ar *self
     const char *filename
   CODE:
-    struct ar_entry *entry;
-    entry = self->first;
-    int found = 0;
-    
-    while(entry != NULL)
-    {
-      if(!strcmp(archive_entry_pathname(entry->entry),filename))
-      {
-        found = 1;
-        break;
-      }
-      entry = entry->next;
-    }
-    
-    if(found)
+    if(ar_find_by_name(self, filename))
       RETVAL = 1;
     else
       XSRETURN_EMPTY;
