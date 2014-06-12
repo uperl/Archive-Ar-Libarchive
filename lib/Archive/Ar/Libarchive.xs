@@ -112,6 +112,35 @@ ar_find_by_name(struct ar *ar, const char *filename)
   return NULL;
 }
 
+static int
+ar_entry_extract(struct ar *ar, struct ar_entry *entry, struct archive *disk)
+{
+  int r;
+  
+  r = archive_write_header(disk, entry->entry);
+  if(r != ARCHIVE_OK)
+  {
+    _error(ar,archive_error_string(disk));
+  }
+  else if(archive_entry_size(entry->entry) > 0)
+  {
+    r = archive_write_data_block(disk, entry->data, entry->data_size, 0);
+    if(r != ARCHIVE_OK)
+      _error(ar, archive_error_string(disk));
+    if(r < ARCHIVE_WARN)
+      return 0;
+  }
+      
+  r = archive_write_finish_entry(disk);
+  if(r != ARCHIVE_OK)
+    _error(ar, archive_error_string(disk));
+
+  if(r < ARCHIVE_WARN)
+    return 0;
+  else
+    return 1;
+}
+
 static __LA_SSIZE_T
 ar_read_callback(struct archive *archive, void *cd, const void **buffer)
 {
@@ -700,7 +729,7 @@ extract(self)
     struct ar_entry *entry;
     struct archive *disk;
     int flags;
-    int r;
+    int ok = 1;
     
     entry = self->first;
     
@@ -716,39 +745,59 @@ extract(self)
     
     while(entry != NULL)
     {
-      r = archive_write_header(disk, entry->entry);
-      if(r != ARCHIVE_OK)
+      if(ar_entry_extract(self, entry, disk) == 0)
       {
-        _error(self,archive_error_string(disk));
+        ok = 0;
+        break;
       }
-      else if(archive_entry_size(entry->entry) > 0)
-      {
-        r = archive_write_data_block(disk, entry->data, entry->data_size, 0);
-        if(r != ARCHIVE_OK)
-        {
-          _error(self,archive_error_string(disk));
-        }
-        if(r < ARCHIVE_WARN)
-        {  
-          XSRETURN_EMPTY;
-        }
-      }
-      
-      r = archive_write_finish_entry(disk);
-      if(r != ARCHIVE_OK)
-      {
-        _error(self,archive_error_string(disk));
-      }
-      if(r < ARCHIVE_WARN)
-        XSRETURN_EMPTY;
-      
       entry = entry->next;
     }
     
     archive_write_close(disk);
     archive_write_free(disk);
     
-    RETVAL = 1;
+    if(ok)
+      RETVAL = 1;
+    else
+      XSRETURN_EMPTY;
+  OUTPUT:
+    RETVAL
+
+int
+extract_file(self,filename)
+    struct ar *self
+    const char *filename
+  CODE:
+    struct ar_entry *entry;
+    struct archive *disk;
+    int flags;
+    int ok;
+
+    entry = ar_find_by_name(self, filename);
+    
+    if(entry == NULL)
+      XSRETURN_EMPTY;
+    
+    /* Not 100% which of these even relate to the ar format */
+    flags = ARCHIVE_EXTRACT_TIME
+    |       ARCHIVE_EXTRACT_PERM
+    |       ARCHIVE_EXTRACT_ACL
+    |       ARCHIVE_EXTRACT_FFLAGS;
+    
+    disk = archive_write_disk_new();
+    archive_write_disk_set_options(disk, flags);
+    archive_write_disk_set_standard_lookup(disk);
+    
+    ok = ar_entry_extract(self, entry, disk);
+
+    archive_write_close(disk);
+    archive_write_free(disk);
+    
+    if(ok)
+      RETVAL = 1;
+    else
+      XSRETURN_EMPTY;
+    
   OUTPUT:
     RETVAL
 
