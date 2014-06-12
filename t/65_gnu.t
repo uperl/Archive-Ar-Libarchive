@@ -10,8 +10,12 @@ my $content = do {local $/ = undef; <DATA>};
 my $ar = Archive::Ar::Libarchive->new();
 ok $ar->read_memory($content) or diag $ar->error;
 is $ar->type, GNU;
-my $regurg = $ar->write;
-is $regurg, $content;
+
+SKIP: {
+  skip "Archive::Ar::Libarchive does not support writing GNU",1;
+  my $regurg = $ar->write;
+  is $regurg, $content;
+}
 
 __DATA__
 !<arch>

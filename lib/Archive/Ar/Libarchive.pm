@@ -157,14 +157,6 @@ GNU is returned.  If it looks like a bsd-style archive, BSD is returned.
 Otherwise, COMMON is returned.  Note that unless filenames exceed 16
 characters in length, bsd archives look like the common format.
 
-=cut
-
-sub type
-{
-  # TODO
-  COMMON;
-}
-
 =head2 clear
 
  $ar->clear;

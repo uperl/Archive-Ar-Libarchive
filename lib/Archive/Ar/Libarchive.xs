@@ -196,6 +196,8 @@ ar_read_archive(struct archive *archive, struct ar *ar)
   size_t size;
   off_t  offset;
 
+  ar->opt_type = ARCHIVE_AR_COMMON;
+
   while(1)
   {
 #if HAS_has_archive_read_next_header2
@@ -206,6 +208,19 @@ ar_read_archive(struct archive *archive, struct ar *ar)
     r = archive_read_next_header(archive, &tmp);
     entry = archive_entry_clone(tmp);
 #endif
+
+    if(ar->opt_type == ARCHIVE_AR_COMMON)
+    {
+      switch(archive_format(archive))
+      {
+        case ARCHIVE_FORMAT_AR_GNU:
+          ar->opt_type = ARCHIVE_AR_GNU;
+          break;
+        case ARCHIVE_FORMAT_AR_BSD:
+          ar->opt_type = ARCHIVE_AR_BSD;
+          break;
+      }
+    }
       
     if(r == ARCHIVE_OK)
       ;
@@ -344,6 +359,7 @@ SV *
 error(self)
     struct ar *self
   CODE:
+    /* TODO trace argument returns the longmess */
     RETVAL = self->error;
   OUTPUT:
     RETVAL
@@ -726,3 +742,14 @@ extract(self)
     archive_write_free(disk);
     
     RETVAL = 1;
+  OUTPUT:
+    RETVAL
+
+
+int
+type(self)
+    struct ar *self
+  CODE:
+    RETVAL = self->opt_type;
+  OUTPUT:
+    RETVAL

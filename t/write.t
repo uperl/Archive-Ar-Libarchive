@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use Test::More tests => 4;
-use Archive::Ar::Libarchive;
+use Archive::Ar::Libarchive qw( BSD COMMON );
 use File::Temp qw( tempdir );
 use File::Spec;
 
@@ -42,7 +42,8 @@ subtest 'write bsd' => sub {
   plan tests => 2;
   
   my $ar = before();
-  $ar->set_output_format_bsd;
+  #$ar->set_output_format_bsd;
+  $ar->set_opt(type => BSD);
   my $fn = File::Spec->catfile($dir, "libfoo.a");
   
   my $size = $ar->write($fn);
@@ -58,7 +59,8 @@ subtest 'write svr4' => sub {
   plan tests => 2;
   
   my $ar = before();
-  $ar->set_output_format_svr4;
+  #$ar->set_output_format_svr4;
+  $ar->set_opt(type => COMMON);
   my $fn = File::Spec->catfile($dir, "libfoo.a");
   
   my $size = $ar->write($fn);
