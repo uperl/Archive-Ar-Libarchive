@@ -75,6 +75,9 @@ Assign option `$name` value `$value`.  Supported options include:
     Warning level.  Levels are zero for no warnings, 1 for brief warnings,
     and 2 for warnings with a stack trace.  Default is zero.
 
+    Warnings that originate with libarchive itself will not include a
+    stacktrace, even with a warn level set to 2.
+
 - chmod
 
     Change the file permissions of files created when extracting.  Default
@@ -325,11 +328,3 @@ This software is copyright (c) 2013 by Graham Ollis.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
-
-# POD ERRORS
-
-Hey! **The above document had some coding errors, which are explained below:**
-
-- Around line 112:
-
-    You forgot a '=back' before '=head2'

@@ -144,6 +144,8 @@ Note that libarchive can read GNU style ar files, but it cannot write
 to them.  If you attempt to write using L<Archive::Ar::Libarchive>
 when type is set to GNU, it will throw an exception.
 
+=back
+
 =head2 get_opt
 
  my $value = $ar->get_opt($name);
