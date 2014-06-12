@@ -196,8 +196,9 @@ sub read
 
   my $ret = 0;
   
-  if(ref $filename_or_handle eq 'GLOB')
+  if(ref $filename_or_handle)
   {
+    return $self->_error("Not a filehandle") unless eval{*$filename_or_handle{IO}} or $filename_or_handle->isa('IO::Handle');
     my $buffer;
     $ret = $self->_read_from_callback(sub {
       my $br = read $filename_or_handle, $buffer, 1024;
