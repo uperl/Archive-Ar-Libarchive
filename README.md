@@ -154,8 +154,7 @@ Returns `undef` otherwise.
 
 Extract all files from the archive.  Extracted files are assigned the
 permissions and modification time stored in the archive, and, if possible,
-the user and group ownership.  Returns true on success, or `undef`
-for failure.
+the user and group ownership.  Returns true on success, `undef` for failure.
 
 ## extract\_file
 

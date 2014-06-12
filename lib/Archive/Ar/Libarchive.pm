@@ -257,15 +257,7 @@ sub contains_file
 
 Extract all files from the archive.  Extracted files are assigned the
 permissions and modification time stored in the archive, and, if possible,
-the user and group ownership.  Returns true on success, or C<undef>
-for failure.
-
-=cut
-
-sub extract
-{
-  # TODO
-}
+the user and group ownership.  Returns true on success, C<undef> for failure.
 
 =head2 extract_file
 

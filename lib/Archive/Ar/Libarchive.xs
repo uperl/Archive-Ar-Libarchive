@@ -666,3 +666,63 @@ rename(self, old, new)
       }
       entry = entry->next;
     }
+
+int
+extract(self)
+    struct ar *self
+  CODE:
+    struct ar_entry *entry;
+    struct archive *disk;
+    int flags;
+    int r;
+    
+    entry = self->first;
+    
+    /* Not 100% which of these even relate to the ar format */
+    flags = ARCHIVE_EXTRACT_TIME
+    |       ARCHIVE_EXTRACT_PERM
+    |       ARCHIVE_EXTRACT_ACL
+    |       ARCHIVE_EXTRACT_FFLAGS;
+    
+    disk = archive_write_disk_new();
+    archive_write_disk_set_options(disk, flags);
+    archive_write_disk_set_standard_lookup(disk);
+    
+    while(entry != NULL)
+    {
+      r = archive_write_header(disk, entry->entry);
+      if(r != ARCHIVE_OK)
+      {
+        if(self->opt_warn)
+          warn("%s", archive_error_string(disk));
+      }
+      else if(archive_entry_size(entry->entry) > 0)
+      {
+        r = archive_write_data_block(disk, entry->data, entry->data_size, 0);
+        if(r != ARCHIVE_OK)
+        {
+          if(self->opt_warn)
+            warn("%s", archive_error_string(disk));
+        }
+        if(r < ARCHIVE_WARN)
+        {  
+          XSRETURN_EMPTY;
+        }
+      }
+      
+      r = archive_write_finish_entry(disk);
+      if(r != ARCHIVE_OK)
+      {
+        if(self->opt_warn)
+          warn("%s", archive_error_string(disk));
+      }
+      if(r < ARCHIVE_WARN)
+        XSRETURN_EMPTY;
+      
+      entry = entry->next;
+    }
+    
+    archive_write_close(disk);
+    archive_write_free(disk);
+    
+    RETVAL = 1;
