@@ -29,6 +29,12 @@
 #define ARCHIVE_AR_BSD     2
 #define ARCHIVE_AR_GNU     3
 
+#define _error(ar, message) {                                                   \
+        if(ar->opt_warn)                                                        \
+          warn("%s", message);                                                  \
+        ar->error = ar->longmess = SvREFCNT_inc(newSVpv(message,0));            \
+      }
+
 struct ar_entry;
 
 struct ar {
@@ -165,16 +171,14 @@ ar_write_archive(struct archive *archive, struct ar *ar)
     r = archive_write_header(archive, entry->entry);
     if(r < ARCHIVE_OK)
     {
-      if(ar->opt_warn)
-        warn("%s", archive_error_string(archive));
+      _error(ar,archive_error_string(archive));
       if(r != ARCHIVE_WARN)
         return 0;
     }
     r = archive_write_data(archive, entry->data, entry->data_size);
     if(r < ARCHIVE_OK)
     {
-      if(ar->opt_warn)
-        warn("%s", archive_error_string(archive));
+      _error(ar,archive_error_string(archive));
       if(r != ARCHIVE_WARN)
         return 0;
     }
@@ -226,8 +230,7 @@ ar_read_archive(struct archive *archive, struct ar *ar)
       ;
     else if(r == ARCHIVE_WARN)
     {
-      if(ar->opt_warn)
-        warn("%s", archive_error_string(archive));
+      _error(ar,archive_error_string(archive));
     }
     else if(r == ARCHIVE_EOF)
     {
@@ -240,7 +243,7 @@ ar_read_archive(struct archive *archive, struct ar *ar)
     }
     else
     {
-      warn("%s", archive_error_string(archive));
+      _error(ar,archive_error_string(archive));
       ar_reset(ar);
       return 0;
     }
@@ -251,14 +254,13 @@ ar_read_archive(struct archive *archive, struct ar *ar)
 
     r = archive_read_data(archive, (void*)next->data, next->data_size);
 
-    if(r == ARCHIVE_WARN && ar->opt_warn)
+    if(r == ARCHIVE_WARN)
     {
-      warn("%s", archive_error_string(archive));
+      _error(ar,archive_error_string(archive));
     }
     else if(r < ARCHIVE_OK && r != ARCHIVE_EOF)
     {
-      if(ar->opt_warn)
-        warn("%s", archive_error_string(archive));
+      _error(ar,archive_error_string(archive));
       Safefree(next->data);
       Safefree(next);
       return 0;
@@ -379,14 +381,13 @@ _read_from_filename(self, filename)
     r = archive_read_open_filename(archive, filename, 1024);
     if(r == ARCHIVE_OK || r == ARCHIVE_WARN)
     {
-      if(r == ARCHIVE_WARN && self->opt_warn)
-        warn("%s", archive_error_string(archive));
+      if(r == ARCHIVE_WARN)
+        _error(self, archive_error_string(archive));
       RETVAL = ar_read_archive(archive, self);
     }
     else
     {
-      if(self->opt_warn)
-        warn("%s", archive_error_string(archive));
+      _error(self,archive_error_string(archive));
       RETVAL = 0;
     }
 #if ARCHIVE_VERSION_NUMBER < 3000000
@@ -414,13 +415,13 @@ _read_from_callback(self, callback)
 
     if(r == ARCHIVE_OK || r == ARCHIVE_WARN)
     {
-      if(r == ARCHIVE_WARN && self->opt_warn)
-        warn("%s", archive_error_string(archive));
+      if(r == ARCHIVE_WARN)
+        _error(self,archive_error_string(archive));
       RETVAL = ar_read_archive(archive, self);
     }
     else
     {
-      warn("%s", archive_error_string(archive));
+      _error(self,archive_error_string(archive));
       RETVAL = 0;
     }    
 #if ARCHIVE_VERSION_NUMBER < 3000000
@@ -448,11 +449,11 @@ _write_to_filename(self, filename)
       croak("output format GNU is not supported by Archive::Ar::Libarchive");
     else
       r = archive_write_set_format_ar_svr4(archive);
-    if(r != ARCHIVE_OK && self->opt_warn)
-      warn("%s", archive_error_string(archive));
+    if(r != ARCHIVE_OK)
+      _error(self,archive_error_string(archive));
     r = archive_write_open_filename(archive, filename);
-    if(r != ARCHIVE_OK && self->opt_warn)
-      warn("%s", archive_error_string(archive));
+    if(r != ARCHIVE_OK)
+      _error(self,archive_error_string(archive));
     if(r == ARCHIVE_OK || r == ARCHIVE_WARN)
       RETVAL = ar_write_archive(archive, self);
     else
@@ -482,11 +483,11 @@ _write_to_callback(self, callback)
       croak("output format GNU is not supported by Archive::Ar::Libarchive");
     else
       r = archive_write_set_format_ar_svr4(archive);
-    if(r != ARCHIVE_OK && self->opt_warn)
-      warn("%s", archive_error_string(archive));
+    if(r != ARCHIVE_OK)
+      _error(self,archive_error_string(archive));
     r = archive_write_open(archive, (void*)self, NULL, ar_write_callback, ar_close_callback);
-    if(r != ARCHIVE_OK && self->opt_warn)
-      warn("%s", archive_error_string(archive));
+    if(r != ARCHIVE_OK)
+      _error(self,archive_error_string(archive));
     if(r == ARCHIVE_OK || r == ARCHIVE_WARN)
       RETVAL = ar_write_archive(archive, self);
     else
@@ -709,16 +710,14 @@ extract(self)
       r = archive_write_header(disk, entry->entry);
       if(r != ARCHIVE_OK)
       {
-        if(self->opt_warn)
-          warn("%s", archive_error_string(disk));
+        _error(self,archive_error_string(disk));
       }
       else if(archive_entry_size(entry->entry) > 0)
       {
         r = archive_write_data_block(disk, entry->data, entry->data_size, 0);
         if(r != ARCHIVE_OK)
         {
-          if(self->opt_warn)
-            warn("%s", archive_error_string(disk));
+          _error(self,archive_error_string(disk));
         }
         if(r < ARCHIVE_WARN)
         {  
@@ -729,8 +728,7 @@ extract(self)
       r = archive_write_finish_entry(disk);
       if(r != ARCHIVE_OK)
       {
-        if(self->opt_warn)
-          warn("%s", archive_error_string(disk));
+        _error(self,archive_error_string(disk));
       }
       if(r < ARCHIVE_WARN)
         XSRETURN_EMPTY;

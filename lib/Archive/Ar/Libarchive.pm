@@ -117,6 +117,9 @@ Assign option C<$name> value C<$value>.  Supported options include:
 Warning level.  Levels are zero for no warnings, 1 for brief warnings,
 and 2 for warnings with a stack trace.  Default is zero.
 
+Warnings that originate with libarchive itself will not include a
+stacktrace, even with a warn level set to 2.
+
 =item chmod
 
 Change the file permissions of files created when extracting.  Default
