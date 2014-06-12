@@ -12,8 +12,13 @@ pod_spelling_system:
     - c
     - deb
     - stat
+    - bsd
+    - stacktrace
 
 pod_coverage:
   # format is "Class#method" or "Class", regex allowed
   # for either Class or method.
-  private: []
+  private:
+    - Archive::Ar::Libarchive#DEBUG
+    - Archive::Ar::Libarchive#set_output_format_bsd
+    - Archive::Ar::Libarchive#set_output_format_svr4

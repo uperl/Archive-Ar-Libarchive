@@ -157,7 +157,7 @@ Returns the value of the option C<$name>.
  my $type = $ar->type;
 
 Returns the type of the ar archive.  The type is undefined until an archive
-is loaded.  If the archive displays characteristics of a gnu-style archive,
+is loaded.  If the archive displays characteristics of a GNU-style archive,
 GNU is returned.  If it looks like a bsd-style archive, BSD is returned.
 Otherwise, COMMON is returned.  Note that unless filenames exceed 16
 characters in length, bsd archives look like the common format.
@@ -249,7 +249,7 @@ the user and group ownership.  Returns true on success, C<undef> for failure.
 Extracts a single file from the archive.  The extracted file is assigned
 the permissions and modification time stored in the archive, and, if
 possible, the user and group ownership.  Returns true on success,
-C<undef> for faiure.
+C<undef> for failure.
 
 =head2 rename
 
@@ -431,7 +431,27 @@ sub write
   my($self, $filename) = @_;
   if(defined $filename)
   {
+    my $fh;
+  
+    if(ref $filename)
+    {
+      return $self->_error("Not a filehandle") unless eval{*$filename{IO}} or $filename->isa('IO::Handle');
+      $fh = $filename;
+      use File::Temp qw( tempdir );
+      use File::Spec;
+      $filename = File::Spec->catdir(tempdir( CLEANUP => 1), 'archive.ar');
+    }
+
     my $status = $self->_write_to_filename($filename);
+    
+    if($fh)
+    {
+      # TODO: this is getting plain silly.
+      open my $tmp, '<', $filename;
+      print $fh $_ for <$tmp>;
+      close $tmp;
+    }
+    
     return unless $status;
     return $status;
   }
@@ -503,7 +523,7 @@ The contained data
 
 =back
 
-=head1 get_data
+=head2 get_data
 
  my $data = $ar->get_data($filename);
 

@@ -113,7 +113,7 @@ Returns the value of the option `$name`.
     my $type = $ar->type;
 
 Returns the type of the ar archive.  The type is undefined until an archive
-is loaded.  If the archive displays characteristics of a gnu-style archive,
+is loaded.  If the archive displays characteristics of a GNU-style archive,
 GNU is returned.  If it looks like a bsd-style archive, BSD is returned.
 Otherwise, COMMON is returned.  Note that unless filenames exceed 16
 characters in length, bsd archives look like the common format.
@@ -166,7 +166,7 @@ the user and group ownership.  Returns true on success, `undef` for failure.
 Extracts a single file from the archive.  The extracted file is assigned
 the permissions and modification time stored in the archive, and, if
 possible, the user and group ownership.  Returns true on success,
-`undef` for faiure.
+`undef` for failure.
 
 ## rename
 
@@ -285,7 +285,7 @@ keys:
 
     The contained data
 
-# get\_data
+## get\_data
 
     my $data = $ar->get_data($filename);
 
