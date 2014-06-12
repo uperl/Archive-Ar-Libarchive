@@ -347,9 +347,9 @@ _new()
     self->error          = NULL;
     self->longmess       = NULL;
     self->opt_warn       = 0;
-    self->opt_chmod      = 1;
+    self->opt_chmod      = 1;  /* TODO */
     self->opt_same_perms = 1;  /* TODO: root only ? */
-    self->opt_chown      = 1;
+    self->opt_chown      = 1;  /* TODO */
     ar_reset(self);
     RETVAL = self;
   OUTPUT:
@@ -829,3 +829,45 @@ clear(self)
     struct ar *self
   CODE:
     ar_reset(self);
+
+
+int
+_chmod(self, filename, mode)
+    struct ar *self
+    const char *filename
+    int mode
+  CODE:
+    struct ar_entry *entry;
+    entry = ar_find_by_name(self, filename);
+    if(entry != NULL)
+    {
+      archive_entry_set_mode(entry->entry, mode);
+      RETVAL = 1;
+    }
+    else
+    {
+      XSRETURN_EMPTY;
+    }
+
+
+int
+_chown(self, filename, uid, gid)
+    struct ar *self
+    const char *filename
+    int uid
+    SV *gid
+  CODE:
+    struct ar_entry *entry;
+    entry = ar_find_by_name(self, filename);
+    if(entry != NULL)
+    {
+      archive_entry_set_uid(entry->entry, uid);
+      if(SvOK(gid))
+      {
+        archive_entry_set_gid(entry->entry, SvIV(gid));
+      }
+    }
+    else
+    {
+      XSRETURN_EMPTY;
+    }

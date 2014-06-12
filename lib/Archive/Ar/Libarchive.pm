@@ -265,7 +265,8 @@ TODO
 
 sub chmod
 {
-  # TODO
+  my($self, $filename, $mode) = @_;
+  $self->_chmod($filename, $mode + 0 eq $mode ? $mode : oct($mode));
 }
 
 =head2 chown
@@ -276,7 +277,8 @@ TODO
 
 sub chown
 {
-  # TODO
+  my($self, $filename, $uid, $gid) = @_;
+  $self->_chown($filename, $uid, $gid);
 }
 
 =head2 remove
