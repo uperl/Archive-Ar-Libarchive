@@ -861,8 +861,9 @@ _chown(self, filename, uid, gid)
     entry = ar_find_by_name(self, filename);
     if(entry != NULL)
     {
-      archive_entry_set_uid(entry->entry, uid);
-      if(SvOK(gid))
+      if(uid >= 0)
+        archive_entry_set_uid(entry->entry, uid);
+      if(SvOK(gid) && SvIV(gid) >= 0)
       {
         archive_entry_set_gid(entry->entry, SvIV(gid));
       }
