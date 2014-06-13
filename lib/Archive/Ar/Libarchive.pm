@@ -259,7 +259,9 @@ Changes the name of a file in the in-memory archive.
 
 =head2 chmod
 
-TODO
+ $ar->chmod($filename, $mode);
+
+Change the permission mode of the member to C<$mode>.
 
 =cut
 
@@ -271,7 +273,11 @@ sub chmod
 
 =head2 chown
 
-TODO
+ $ar->chown($filename, $uid, $gid);
+ $ar->chown($filename, $uid);
+
+Change the ownership of the member to user id C<$udi> and (optionally)
+group id C<$gid>.  Negative id values are ignored.
 
 =cut
 

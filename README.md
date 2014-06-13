@@ -176,11 +176,17 @@ Changes the name of a file in the in-memory archive.
 
 ## chmod
 
-TODO
+    $ar->chmod($filename, $mode);
+
+Change the permission mode of the member to `$mode`.
 
 ## chown
 
-TODO
+    $ar->chown($filename, $uid, $gid);
+    $ar->chown($filename, $uid);
+
+Change the ownership of the member to user id `$udi` and (optionally)
+group id `$gid`.  Negative id values are ignored.
 
 ## remove
 
