@@ -50,6 +50,11 @@ sub new
   $args{extra_linker_flags}   = $alien->libs;
   $args{c_source}             = 'xs';
   
+  return $class->SUPER::new(%args) unless $alien->isa('Alien::Base');
+
+  # The rest of this is only necessary if using the older broken
+  # Alien::Base version of Alien::Libarchive
+  
   my $cc = ExtUtils::CChecker->new( quiet => 1 );
   $cc->assert_compile_run( source => 'int main(int argc, char *argv[]) { return 0; }' );
   
