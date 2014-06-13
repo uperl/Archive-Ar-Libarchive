@@ -1,6 +1,34 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  - this version serves primarily to bring the API in line with
+    Archive::Ar after it had a major rewrite.
+  - added methods
+    - set_opt
+    - get_opt
+    - clear
+    - get_data
+    - chmod
+    - chown
+    - type
+    - rename
+    - extract
+    - extract_filename
+    - error
+    - contains_file
+  - deprecated methods
+    - DEBUG
+    - set_output_format_bsd
+    - set_output_format_svr4
+  - Archive::Ar::Libarchive now optionally exports type constants
+    COMMON (referred to as "svr4" by libarchive), GNU and BSD
+  - type detection: after reading an archive the type method
+    will tell you the type of ar file.
+  - output format defaults to input format, GNU output is still
+    not supported
+  - attempting to write a GNU format ar file will throw an exception
+  - read and write metods will now accept a file handle or IO::Handle
+    object
 
 0.12      2014-06-10 10:02:28 -0400
   - borrow new test t/50empty.t from Archive::Ar
