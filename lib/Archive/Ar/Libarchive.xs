@@ -501,8 +501,6 @@ _write_to_filename(self, filename)
     archive = archive_write_new();
     if(self->opt_type == ARCHIVE_AR_BSD)
       r = archive_write_set_format_ar_bsd(archive);
-    else if(self->opt_type == ARCHIVE_AR_GNU)
-      croak("output format GNU is not supported by Archive::Ar::Libarchive");
     else
       r = archive_write_set_format_ar_svr4(archive);
     if(r != ARCHIVE_OK)
@@ -532,11 +530,10 @@ _write_to_callback(self, callback)
     
     self->callback = SvREFCNT_inc(callback);
 
+
     archive = archive_write_new();
     if(self->opt_type == ARCHIVE_AR_BSD)
       r = archive_write_set_format_ar_bsd(archive);
-    else if(self->opt_type == ARCHIVE_AR_GNU)
-      croak("output format GNU is not supported by Archive::Ar::Libarchive");
     else
       r = archive_write_set_format_ar_svr4(archive);
     if(r != ARCHIVE_OK)

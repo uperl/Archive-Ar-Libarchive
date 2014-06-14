@@ -11,11 +11,8 @@ my $ar = Archive::Ar::Libarchive->new();
 ok $ar->read_memory($content) or diag $ar->error;
 is $ar->type, GNU;
 
-SKIP: {
-  skip "Archive::Ar::Libarchive does not support writing GNU",1;
-  my $regurg = $ar->write;
-  is $regurg, $content;
-}
+my $regurg = $ar->write;
+is $regurg, $content;
 
 __DATA__
 !<arch>
