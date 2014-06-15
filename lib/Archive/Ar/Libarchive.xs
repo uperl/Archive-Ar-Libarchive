@@ -221,6 +221,35 @@ ar_write_archive(struct archive *archive, struct ar *ar)
   struct ar_entry *entry;
   int count;
 
+  if(ar->opt_type == ARCHIVE_AR_GNU)
+  {
+    struct archive_entry *table = archive_entry_new();
+    archive_entry_set_pathname(table, "//");
+    r = archive_write_header(archive, table);
+    if(r < ARCHIVE_OK)
+    {
+      _error(ar, archive_error_string(archive));
+      if(r != ARCHIVE_WARN)
+        return 0;
+    }
+    
+    for(entry = ar->first; entry != NULL; entry = entry->next)
+    {
+      const char *name;
+      int len;
+      name = archive_entry_pathname(entry->entry);
+      len = strlen(name);
+      if(len > 15)
+      {
+        /* TODO error checking */
+        r = archive_write_data(archive, name, len);
+        r = archive_write_data(archive, "/\n", 2);
+      }
+    }
+    
+    archive_entry_free(table);
+  }
+
   for(entry = ar->first; entry != NULL; entry = entry->next)
   {
     r = archive_write_header(archive, entry->entry);
