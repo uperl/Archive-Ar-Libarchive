@@ -17,14 +17,8 @@ umask 0;
 my $ar  = Archive::Ar::Libarchive->new();
 $ar->read_memory($content) or diag $ar->error;
 ok $ar->chmod('foo.txt', 0100750), 'chmod';
-chdir $dir or die;
-$ar->extract;
-my @st = lstat 'foo.txt';
-SKIP: {
-skip "premission mode not reliable on MSWin32", 1 if $^O eq 'MSWin32';
-is $st[2], 0100750, 'mode 1 matches';
-}
 
+is $ar->get_content('foo.txt')->{mode}, 0100750, 'mode is set';
 
 __DATA__
 !<arch>
