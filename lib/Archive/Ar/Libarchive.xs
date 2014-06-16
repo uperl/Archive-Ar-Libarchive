@@ -482,7 +482,12 @@ get_opt(self, name)
     else if(!strcmp(name, "chown"))
       RETVAL = self->opt_chown;
     else if(!strcmp(name, "type"))
-      RETVAL = self->opt_type;
+    {
+      if(self->opt_type == ARCHIVE_AR_UNDEF)
+        XSRETURN_EMPTY;
+      else
+        RETVAL = self->opt_type;
+    }
     else
       warn("unknown or unsupported option %s", name);
   OUTPUT:
