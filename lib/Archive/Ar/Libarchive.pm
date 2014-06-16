@@ -532,13 +532,6 @@ The contained data
 Returns a scalar containing the file data of the given archive member.
 On error returns C<undef>.
 
-=cut
-
-sub get_data
-{
-  shift->get_content(@_)->{data};
-}
-
 =head2 get_handle
 
  my $handle = $ar->get_handle($filename);

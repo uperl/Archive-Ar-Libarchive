@@ -780,6 +780,19 @@ get_content(self, filename)
   OUTPUT:
     RETVAL
 
+SV *
+get_data(self, filename)
+    struct ar *self
+    const char *filename
+  CODE:
+    struct ar_entry *entry;
+    entry = ar_find_by_name(self, filename);
+    if(entry == NULL)
+      XSRETURN_EMPTY;
+    RETVAL = newSVpv(entry->data, entry->data_size);
+  OUTPUT:
+    RETVAL
+
 
 SV *
 _broken_get_data(self, filename)
