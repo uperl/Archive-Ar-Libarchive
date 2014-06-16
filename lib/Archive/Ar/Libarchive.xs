@@ -288,7 +288,22 @@ ar_write_archive(struct archive *archive, struct ar *ar)
   /* write each entry out one at a time */
   for(entry = ar->first; entry != NULL; entry = entry->next)
   {
-    r = archive_write_header(archive, entry->entry);
+    struct archive_entry *short_entry = NULL;
+    
+    if(ar->opt_type == ARCHIVE_AR_COMMON)
+    {
+      const char *name = archive_entry_pathname(entry->entry);
+      int len = strlen(name);
+      if(len > 15)
+      {
+        char buffer[16];
+        short_entry = archive_entry_clone(entry->entry);
+        strncpy(buffer, name, 15);
+        archive_entry_set_pathname(short_entry, buffer);
+      }
+    }
+  
+    r = archive_write_header(archive, short_entry != NULL ? short_entry : entry->entry);
     if(r < ARCHIVE_OK)
     {
       _error(ar,archive_error_string(archive));
@@ -302,6 +317,9 @@ ar_write_archive(struct archive *archive, struct ar *ar)
       if(r != ARCHIVE_WARN)
         return 0;
     }
+    
+    if(short_entry != NULL)
+      archive_entry_free(short_entry);
   }
 
 #if ARCHIVE_VERSION_NUMBER < 3000000
@@ -350,9 +368,6 @@ ar_read_archive(struct archive *archive, struct ar *ar)
       {
         switch(archive_format(archive))
         {
-          case ARCHIVE_FORMAT_AR_GNU:
-            ar->opt_type = ARCHIVE_AR_GNU;
-            break;
           case ARCHIVE_FORMAT_AR_BSD:
             ar->opt_type = ARCHIVE_AR_BSD;
             break;
