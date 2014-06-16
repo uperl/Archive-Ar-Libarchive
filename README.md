@@ -83,11 +83,17 @@ Assign option `$name` value `$value`.  Supported options include:
     Change the file permissions of files created when extracting.  Default
     is true (non-zero).
 
+    This option is provided only for compatibility with [Archive::Ar](https://metacpan.org/pod/Archive::Ar).
+    Libarchive does not provide an equivalent to this option, so setting
+    it to false will has no effect.
+
 - same\_perms
 
     When setting file permissions, use the values in the archive unchanged.
     If false, removes setuid bits and applies the user's umask.  Default
-    is true for the root user, false otherwise.
+    is true.
+
+    In [Archive::Ar](https://metacpan.org/pod/Archive::Ar) this option is true for root only.
 
 - chown
 

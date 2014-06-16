@@ -62,6 +62,16 @@ struct ar_entry {
   struct ar_entry *next;
 };
 
+static int ar_disk_options(struct ar *ar)
+{
+  int flags = ARCHIVE_EXTRACT_TIME;
+  if(ar->opt_chown)
+    flags |= ARCHIVE_EXTRACT_OWNER;
+  if(ar->opt_same_perms)
+    flags |= ARCHIVE_EXTRACT_PERM;
+  return flags;
+}
+
 static void
 ar_free_entry(struct ar_entry *entry)
 {
@@ -439,9 +449,9 @@ _new()
     self->error          = NULL;
     self->longmess       = NULL;
     self->opt_warn       = 0;
-    self->opt_chmod      = 1;  /* TODO */
-    self->opt_same_perms = 1;  /* TODO: root only ? */
-    self->opt_chown      = 1;  /* TODO */
+    self->opt_chmod      = 1;  /* ignored */
+    self->opt_same_perms = 1;  /* different: pp version this is true for root only */
+    self->opt_chown      = 1; 
     ar_reset(self);
     RETVAL = self;
   OUTPUT:
@@ -811,19 +821,12 @@ extract(self)
   CODE:
     struct ar_entry *entry;
     struct archive *disk;
-    int flags;
     int ok = 1;
     
     entry = self->first;
     
-    /* Not 100% which of these even relate to the ar format */
-    flags = ARCHIVE_EXTRACT_TIME
-    |       ARCHIVE_EXTRACT_PERM
-    |       ARCHIVE_EXTRACT_ACL
-    |       ARCHIVE_EXTRACT_FFLAGS;
-    
     disk = archive_write_disk_new();
-    archive_write_disk_set_options(disk, flags);
+    archive_write_disk_set_options(disk, ar_disk_options(self));
     archive_write_disk_set_standard_lookup(disk);
     
     while(entry != NULL)
@@ -853,7 +856,6 @@ extract_file(self,filename)
   CODE:
     struct ar_entry *entry;
     struct archive *disk;
-    int flags;
     int ok;
 
     entry = ar_find_by_name(self, filename);
@@ -861,14 +863,8 @@ extract_file(self,filename)
     if(entry == NULL)
       XSRETURN_EMPTY;
     
-    /* Not 100% which of these even relate to the ar format */
-    flags = ARCHIVE_EXTRACT_TIME
-    |       ARCHIVE_EXTRACT_PERM
-    |       ARCHIVE_EXTRACT_ACL
-    |       ARCHIVE_EXTRACT_FFLAGS;
-    
     disk = archive_write_disk_new();
-    archive_write_disk_set_options(disk, flags);
+    archive_write_disk_set_options(disk, ar_disk_options(self));
     archive_write_disk_set_standard_lookup(disk);
     
     ok = ar_entry_extract(self, entry, disk);

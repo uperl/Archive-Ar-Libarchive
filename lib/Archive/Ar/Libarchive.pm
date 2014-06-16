@@ -125,11 +125,17 @@ stacktrace, even with a warn level set to 2.
 Change the file permissions of files created when extracting.  Default
 is true (non-zero).
 
+This option is provided only for compatibility with L<Archive::Ar>.
+Libarchive does not provide an equivalent to this option, so setting
+it to false will has no effect.
+
 =item same_perms
 
 When setting file permissions, use the values in the archive unchanged.
 If false, removes setuid bits and applies the user's umask.  Default
-is true for the root user, false otherwise.
+is true.
+
+In L<Archive::Ar> this option is true for root only.
 
 =item chown
 
