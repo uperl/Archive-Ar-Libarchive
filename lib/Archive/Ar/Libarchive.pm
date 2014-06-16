@@ -439,48 +439,26 @@ sub write
     {
       return $self->_error("Not a filehandle") unless eval{*$filename{IO}} or $filename->isa('IO::Handle');
       $fh = $filename;
-      use File::Temp qw( tempdir );
-      use File::Spec;
-      $filename = File::Spec->catdir(tempdir( CLEANUP => 1), 'archive.ar');
+      
+      return $self->_write_to_callback(sub {
+        my($archive, $buffer) = @_;
+        print $fh $buffer;
+        length $buffer;
+      });
     }
 
-    my $status = $self->_write_to_filename($filename);
-    
-    if($fh)
-    {
-      # TODO: this is getting plain silly.
-      open my $tmp, '<', $filename;
-      print $fh $_ for <$tmp>;
-      close $tmp;
-    }
-    
-    return unless $status;
-    return $status;
+    return $self->_write_to_filename($filename);
   }
   else
   {
-    #my $content = '';
-    ## TODO: doesn't work
-    #my $status = $self->_write_to_callback(sub {
-    #  my($archive, $buffer) = @_;
-    #  $content .= $buffer;
-    #  length $buffer;
-    #});
-    
-    use File::Temp qw( tempdir );
-    use File::Spec;
-    my $dir = tempdir( CLEANUP => 1 );
-    my $fn = File::Spec->catfile($dir, 'archive.ar');
-    my $status = $self->_write_to_filename($fn);
+    my $content = '';
+    my $status = $self->_write_to_callback(sub {
+      my($archive, $buffer) = @_;
+      $content .= $buffer;
+      length $buffer;
+    });
     return unless $status;
-    
-    open my $fh, '<', $fn;
-    binmode $fh;
-    my $data = do { local $/; <$fh> };
-    close $fh;
-    unlink $fn;
-    
-    return $data;
+    return $content;
   }
 }
 

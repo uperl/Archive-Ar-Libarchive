@@ -627,7 +627,6 @@ _write_to_callback(self, callback)
     
     self->callback = SvREFCNT_inc(callback);
 
-
     archive = archive_write_new();
     if(self->opt_type == ARCHIVE_AR_BSD)
       r = archive_write_set_format_ar_bsd(archive);
@@ -635,6 +634,7 @@ _write_to_callback(self, callback)
       r = archive_write_set_format_ar_svr4(archive);
     if(r != ARCHIVE_OK)
       _error(self,archive_error_string(archive));
+    archive_write_set_bytes_in_last_block(archive, 1);
     r = archive_write_open(archive, (void*)self, NULL, ar_write_callback, ar_close_callback);
     if(r != ARCHIVE_OK)
       _error(self,archive_error_string(archive));
@@ -794,32 +794,6 @@ get_data(self, filename)
     RETVAL
 
 
-SV *
-_broken_get_data(self, filename)
-    struct ar *self
-    const char *filename
-  CODE:
-    struct ar_entry *entry;
-    int found = 0;
-    
-    entry = self->first;
-    
-    while(entry != NULL)
-    {
-      if(!strcmp(archive_entry_pathname(entry->entry), filename))
-      {
-        RETVAL = sv_2mortal(newSVpv(entry->data, entry->data_size));
-        found = 1;
-        break;
-      }
-      entry = entry->next;
-    }
-    
-    if(!found)
-    {
-      XSRETURN_EMPTY;
-    }
-
 void
 rename(self, old, new)
     struct ar *self
@@ -929,6 +903,8 @@ contains_file(self, filename)
       RETVAL = 1;
     else
       XSRETURN_EMPTY;
+  OUTPUT:
+    RETVAL
 
 
 void
@@ -955,6 +931,8 @@ _chmod(self, filename, mode)
     {
       XSRETURN_EMPTY;
     }
+  OUTPUT:
+    RETVAL
 
 
 int
