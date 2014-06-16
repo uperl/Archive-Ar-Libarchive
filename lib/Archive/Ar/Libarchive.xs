@@ -223,33 +223,69 @@ ar_write_archive(struct archive *archive, struct ar *ar)
 
   if(ar->opt_type == ARCHIVE_AR_GNU)
   {
-    struct archive_entry *table = archive_entry_new();
-    archive_entry_set_pathname(table, "//");
-    r = archive_write_header(archive, table);
-    if(r < ARCHIVE_OK)
-    {
-      _error(ar, archive_error_string(archive));
-      if(r != ARCHIVE_WARN)
-        return 0;
-    }
+    int size=0;
     
+    /* calculate the size of the string table */
     for(entry = ar->first; entry != NULL; entry = entry->next)
     {
-      const char *name;
-      int len;
-      name = archive_entry_pathname(entry->entry);
-      len = strlen(name);
+      int len = strlen(archive_entry_pathname(entry->entry));
       if(len > 15)
-      {
-        /* TODO error checking */
-        r = archive_write_data(archive, name, len);
-        r = archive_write_data(archive, "/\n", 2);
-      }
+        size += len + 2;
     }
     
-    archive_entry_free(table);
+    /* if string table size is zero then we don't need  *
+     * one.  Otherwise create the string table since    *
+     * libarchive does not do that for us.              */
+    if(size > 0)
+    {
+      struct archive_entry *table = archive_entry_new();
+      archive_entry_set_pathname(table, "//");
+      archive_entry_set_size(table, size);
+      char buffer[size];
+      int offset = 0;
+
+      /* write the string table header */
+      r = archive_write_header(archive, table);
+      if(r < ARCHIVE_OK)
+      {
+        _error(ar, archive_error_string(archive));
+        if(r != ARCHIVE_WARN)
+        {
+          archive_entry_free(table);
+          return 0;
+        }
+      }
+
+      /* construct the data section of the string table */    
+      for(entry = ar->first; entry != NULL; entry = entry->next)
+      {
+        const char *name;
+        int len;
+        name = archive_entry_pathname(entry->entry);
+        len = strlen(name);
+        
+        if(len > 15)
+        {
+          memcpy(&buffer[offset], name, len);
+          memcpy(&buffer[offset+len], "/\n", 2);
+          offset += len+2;
+        }
+      }
+      
+      /* write the string table to the archive */
+      r = archive_write_data(archive, buffer, size);
+      archive_entry_free(table);
+      
+      if(r < ARCHIVE_OK)
+      {
+        _error(ar, archive_error_string(archive));
+        if(r != ARCHIVE_WARN)
+          return 0;
+      }
+    }
   }
 
+  /* write each entry out one at a time */
   for(entry = ar->first; entry != NULL; entry = entry->next)
   {
     r = archive_write_header(archive, entry->entry);
@@ -297,28 +333,38 @@ ar_read_archive(struct archive *archive, struct ar *ar)
     entry = archive_entry_clone(tmp);
 #endif
 
-    if(ar->opt_type == ARCHIVE_AR_COMMON)
+
+    if(r == ARCHIVE_OK || r == ARCHIVE_WARN)
     {
-      switch(archive_format(archive))
+      /* Filename of // means it has a GNU style string *
+       * table                                          */
+      if(!strcmp(archive_entry_pathname(entry),"//"))
       {
-        case ARCHIVE_FORMAT_AR_GNU:
-          ar->opt_type = ARCHIVE_AR_GNU;
-          break;
-        case ARCHIVE_FORMAT_AR_BSD:
-          ar->opt_type = ARCHIVE_AR_BSD;
-          break;
+        ar->opt_type = ARCHIVE_AR_GNU;
+        continue;
       }
-    }
-      
-    if(r == ARCHIVE_OK)
-      ;
-    else if(r == ARCHIVE_WARN)
-    {
-      _error(ar,archive_error_string(archive));
+
+      /* Otherwise rely on libarchive to determine *
+       * archive type                              */
+      if(ar->opt_type == ARCHIVE_AR_COMMON)
+      {
+        switch(archive_format(archive))
+        {
+          case ARCHIVE_FORMAT_AR_GNU:
+            ar->opt_type = ARCHIVE_AR_GNU;
+            break;
+          case ARCHIVE_FORMAT_AR_BSD:
+            ar->opt_type = ARCHIVE_AR_BSD;
+            break;
+        }
+      }
+      if(r == ARCHIVE_WARN)
+      {
+        _error(ar,archive_error_string(archive));
+      }
     }
     else if(r == ARCHIVE_EOF)
     {
-      archive_entry_free(entry);
 #if ARCHIVE_VERSION_NUMBER < 3000000
       return archive_position_uncompressed(archive);
 #else
@@ -327,6 +373,7 @@ ar_read_archive(struct archive *archive, struct ar *ar)
     }
     else
     {
+      archive_entry_free(entry);
       _error(ar,archive_error_string(archive));
       ar_reset(ar);
       return 0;
@@ -344,6 +391,7 @@ ar_read_archive(struct archive *archive, struct ar *ar)
     }
     else if(r < ARCHIVE_OK && r != ARCHIVE_EOF)
     {
+      archive_entry_free(entry);
       _error(ar,archive_error_string(archive));
       Safefree(next->data);
       Safefree(next);

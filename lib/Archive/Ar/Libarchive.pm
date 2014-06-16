@@ -140,10 +140,6 @@ Change the owners of extracted files, if possible.  Default is true.
 Archive type.  May be GNU, BSD or COMMON, or undef if no archive
 has been read.  Defaults to the type of the archive read or C<undef>.
 
-Note that libarchive can read GNU style ar files, but it cannot write
-to them.  If you attempt to write using L<Archive::Ar::Libarchive>
-when type is set to GNU, it will throw an exception.
-
 =back
 
 =head2 get_opt
@@ -608,11 +604,6 @@ sub _error
 }
 
 1;
-
-=head1 CAVEATS
-
-libarchive cannot write GNU style ar files.  If you need to do that, you should
-use L<Archive::Ar> instead.
 
 =head1 SEE ALSO
 

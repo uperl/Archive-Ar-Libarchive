@@ -98,10 +98,6 @@ Assign option `$name` value `$value`.  Supported options include:
     Archive type.  May be GNU, BSD or COMMON, or undef if no archive
     has been read.  Defaults to the type of the archive read or `undef`.
 
-    Note that libarchive can read GNU style ar files, but it cannot write
-    to them.  If you attempt to write using [Archive::Ar::Libarchive](https://metacpan.org/pod/Archive::Ar::Libarchive)
-    when type is set to GNU, it will throw an exception.
-
 ## get\_opt
 
     my $value = $ar->get_opt($name);
@@ -313,11 +309,6 @@ nested archives.
 Returns the current error string, which is usually the last error
 reported.  If a true value is provided, returns the error message
 and stack trace.
-
-# CAVEATS
-
-libarchive cannot write GNU style ar files.  If you need to do that, you should
-use [Archive::Ar](https://metacpan.org/pod/Archive::Ar) instead.
 
 # SEE ALSO
 
