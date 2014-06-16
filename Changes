@@ -21,14 +21,13 @@ Revision history for {{$dist->name}}
     - set_output_format_bsd
     - set_output_format_svr4
   - Archive::Ar::Libarchive now optionally exports type constants
-    COMMON (referred to as "svr4" by libarchive), GNU and BSD
+    COMMON (referred to as "svr4" previous versions), GNU and BSD
   - type detection: after reading an archive the type method
     will tell you the type of ar file.
-  - output format defaults to input format, GNU output is still
-    not supported
-  - attempting to write a GNU format ar file will throw an exception
+  - output format defaults to input format
   - read and write metods will now accept a file handle or IO::Handle
     object
+  - GNU format is now supported for output
 
 0.12      2014-06-10 10:02:28 -0400
   - borrow new test t/50empty.t from Archive::Ar
