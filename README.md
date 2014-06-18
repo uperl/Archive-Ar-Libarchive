@@ -59,7 +59,7 @@ intentionally to keep similarity between the Archive::\* modules.
     my $ar = Archive::Ar::Libarchive->new($filename);
     my $ar = Archive::Ar::Libarchive->new($fh);
 
-Returns a new [Archive::AR::Libarchive](https://metacpan.org/pod/Archive::AR::Libarchive) object.  Without a filename or 
+Returns a new [Archive::Ar::Libarchive](https://metacpan.org/pod/Archive::Ar::Libarchive) object.  Without a filename or 
 glob, it returns an empty object.  If passed a filename as a scalar or a 
 GLOB, it will attempt to populate from either of those sources.  If it 
 fails, you will receive `undef`, instead of an object reference.
