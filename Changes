@@ -1,8 +1,10 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.00      2014-06-18 10:14:24 -0400
   - this version serves primarily to bring the API in line with
-    Archive::Ar after it had a major rewrite.
+    Archive::Ar 2.00
   - added methods
     - set_opt
     - get_opt
