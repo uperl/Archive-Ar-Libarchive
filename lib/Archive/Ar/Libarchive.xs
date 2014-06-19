@@ -949,3 +949,10 @@ _chown(self, filename, uid, gid)
     {
       XSRETURN_EMPTY;
     }
+
+const char *
+_libarchive_version()
+  CODE:
+    RETVAL = ARCHIVE_VERSION_STRING;
+  OUTPUT:
+    RETVAL
