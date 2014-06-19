@@ -29,6 +29,10 @@
 #define ARCHIVE_AR_BSD     2
 #define ARCHIVE_AR_GNU     3
 
+#if ARCHIVE_VERSION_NUMBER < 3000000
+#define archive_write_free(archive) archive_write_finish(archive)
+#endif
+
 #define _error(ar, message) {                                                   \
         if(ar->opt_warn)                                                        \
           warn("%s", message);                                                  \
@@ -619,11 +623,7 @@ _write_to_filename(self, filename)
       RETVAL = ar_write_archive(archive, self);
     else
       RETVAL = 0;    
-#if ARCHIVE_VERSION_NUMBER < 3000000
-    archive_write_finish(archive);
-#else
     archive_write_free(archive);
-#endif
   OUTPUT:
     RETVAL
 
@@ -652,11 +652,7 @@ _write_to_callback(self, callback)
       RETVAL = ar_write_archive(archive, self);
     else
       RETVAL = 0;
-#if ARCHIVE_VERSION_NUMBER < 3000000
-    archive_write_finish(archive);
-#else
     archive_write_free(archive);    
-#endif
     SvREFCNT_dec(callback);
     self->callback = NULL;    
   OUTPUT:
