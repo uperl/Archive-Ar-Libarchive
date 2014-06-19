@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  - fixed regression involving archive_write_finish and archive_write_free
+    on older versions of libarchive
   - remove workarounds for broken Alien::Base stuff
   - require Alien::Libarchive 0.20
 
