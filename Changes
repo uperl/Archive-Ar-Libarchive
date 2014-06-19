@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.01      2014-06-19 12:22:35 -0400
   - fixed regression involving archive_write_finish and archive_write_free
     on older versions of libarchive
   - remove workarounds for broken Alien::Base stuff
