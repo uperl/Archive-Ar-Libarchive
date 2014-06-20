@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  - fix tests for MSWin32
 
 2.01      2014-06-19 12:22:35 -0400
   - fixed regression involving archive_write_finish and archive_write_free

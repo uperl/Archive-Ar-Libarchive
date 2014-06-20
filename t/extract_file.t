@@ -24,7 +24,10 @@ skip "premission mode not reliable on MSWin32", 1 if $^O eq 'MSWin32';
 is $st[2], 0100644, 'mode 1 matches';
 }
 is $st[7], 9, 'size 1 matches';
+SKIP: {
+skip "mtime not reliable on MSWin32", 1 if $^O eq 'MSWin32';
 is $st[9], 1384344423, 'mtime 1 matches';
+}
 if (open my $fd, 'foo.txt') {
     local $/ = undef;
     my $content = <$fd>;
