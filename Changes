@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.02      2014-06-20 08:06:25 -0400
   - fix tests for MSWin32
 
 2.01      2014-06-19 12:22:35 -0400
