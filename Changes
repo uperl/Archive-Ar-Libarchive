@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  - added extra diagnostic for t/common.t to try and help flush
+    out gh#15
 
 2.02      2014-06-20 08:06:25 -0400
   - fix tests for MSWin32

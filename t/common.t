@@ -6,6 +6,7 @@ use Archive::Ar::Libarchive qw(COMMON);
 my $content = do {local $/ = undef; <DATA>};
 
 my $ar = Archive::Ar::Libarchive->new();
+$ar->set_opt(warn => 1);
 ok $ar->read_memory($content) or diag $ar->error;
 is $ar->type, COMMON;
 
