@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.02_01   2014-06-25 05:42:15 -0400
   - added extra diagnostic for t/common.t to try and help flush
     out gh#15
 
