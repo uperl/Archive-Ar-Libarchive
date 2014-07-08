@@ -313,6 +313,7 @@ ar_write_archive(struct archive *archive, struct ar *ar)
         char buffer[16];
         short_entry = archive_entry_clone(entry->entry);
         strncpy(buffer, name, 15);
+        buffer[15] = '\0';
         archive_entry_set_pathname(short_entry, buffer);
       }
     }
