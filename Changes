@@ -43,7 +43,7 @@ Revision history for {{$dist->name}}
   - type detection: after reading an archive the type method
     will tell you the type of ar file.
   - output format defaults to input format
-  - read and write metods will now accept a file handle or IO::Handle
+  - read and write methods will now accept a file handle or IO::Handle
     object
   - GNU format is now supported for output
 
