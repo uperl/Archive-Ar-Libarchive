@@ -2,6 +2,9 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+2.03      2014-07-08 06:49:30 -0400
+  - fixed common format failure on OpenBSD i386 (GH#15)
+
 2.02_01   2014-06-25 05:42:15 -0400
   - added extra diagnostic for t/common.t to try and help flush
     out gh#15
