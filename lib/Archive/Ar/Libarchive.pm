@@ -63,10 +63,7 @@ similar  circumstances.
 
 The main advantage of L<Archive::Ar> over this module is that it is 
 written in pure perl, and thus does not require a compiler or 
-libarchive.  The advantage of this module (at least as of this writing) 
-is that it supports GNU (read) and BSD (read and write) extensions for 
-longer member filenames.  As an XS module using libarchive it may also
-be faster.
+libarchive.  As an XS module using libarchive it may be faster.
 
 You may notice that the API to L<Archive::Ar::Libarchive> and
 L<Archive::Ar> is similar to L<Archive::Tar> and this was done
