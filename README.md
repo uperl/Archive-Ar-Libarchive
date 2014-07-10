@@ -42,10 +42,7 @@ similar  circumstances.
 
 The main advantage of [Archive::Ar](https://metacpan.org/pod/Archive::Ar) over this module is that it is 
 written in pure perl, and thus does not require a compiler or 
-libarchive.  The advantage of this module (at least as of this writing) 
-is that it supports GNU (read) and BSD (read and write) extensions for 
-longer member filenames.  As an XS module using libarchive it may also
-be faster.
+libarchive.  As an XS module using libarchive it may be faster.
 
 You may notice that the API to [Archive::Ar::Libarchive](https://metacpan.org/pod/Archive::Ar::Libarchive) and
 [Archive::Ar](https://metacpan.org/pod/Archive::Ar) is similar to [Archive::Tar](https://metacpan.org/pod/Archive::Tar) and this was done
