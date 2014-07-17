@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  - added "symbols" option
+  - compatability with Archive::Ar 2.02 API
 
 2.03      2014-07-08 06:49:30 -0400
   - fixed common format failure on OpenBSD i386 (GH#15)
