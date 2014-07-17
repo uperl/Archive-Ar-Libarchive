@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.04      2014-07-17 12:55:50 -0400
   - added "symbols" option
   - compatability with Archive::Ar 2.02 API
 
