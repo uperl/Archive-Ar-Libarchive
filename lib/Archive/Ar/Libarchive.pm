@@ -143,6 +143,14 @@ Change the owners of extracted files, if possible.  Default is true.
 Archive type.  May be GNU, BSD or COMMON, or undef if no archive
 has been read.  Defaults to the type of the archive read or C<undef>.
 
+=item symbols
+
+Provide a filename for the symbol table, if present.  If set, the
+symbol table is treated as a file that can be read from or written
+to an archive.  It is an error if the filename provided matches the
+name of a file in the archive.  If C<undef>, the symbol table is
+ignored.  Defaults to C<undef>.
+
 =back
 
 =head2 get_opt
