@@ -25,7 +25,7 @@ __DATA__
 //                                              21        `
 verylongfilenam.txt/
 
-/               0           0     0     0       16        `
+/               0           0     0     100000  16        `
 iamasymboltable
 foo.txt/        1396584498  1000  1000  100644  16        `
 contents of foo

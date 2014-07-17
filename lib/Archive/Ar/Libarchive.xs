@@ -57,6 +57,7 @@ struct ar {
  
   SV *error;
   SV *longmess;
+  SV *opt_symbols;
 };
 
 struct ar_entry {
@@ -64,6 +65,8 @@ struct ar_entry {
   const char *data;
   size_t data_size;
   struct ar_entry *next;
+  
+  unsigned int is_symbol_table : 1;
 };
 
 static int ar_disk_options(struct ar *ar)
@@ -242,6 +245,8 @@ ar_write_archive(struct archive *archive, struct ar *ar)
     /* calculate the size of the string table */
     for(entry = ar->first; entry != NULL; entry = entry->next)
     {
+      if(entry->is_symbol_table)
+        continue;
       int len = strlen(archive_entry_pathname(entry->entry));
       if(len > 15)
         size += len + 2;
@@ -304,6 +309,12 @@ ar_write_archive(struct archive *archive, struct ar *ar)
   {
     struct archive_entry *short_entry = NULL;
     
+    if(entry->is_symbol_table)
+    {
+      short_entry = archive_entry_clone(entry->entry);
+      archive_entry_copy_pathname(short_entry, "/");
+    }
+    
     if(ar->opt_type == ARCHIVE_AR_COMMON)
     {
       const char *name = archive_entry_pathname(entry->entry);
@@ -314,7 +325,7 @@ ar_write_archive(struct archive *archive, struct ar *ar)
         short_entry = archive_entry_clone(entry->entry);
         strncpy(buffer, name, 15);
         buffer[15] = '\0';
-        archive_entry_set_pathname(short_entry, buffer);
+        archive_entry_copy_pathname(short_entry, buffer);
       }
     }
   
@@ -352,6 +363,8 @@ ar_read_archive(struct archive *archive, struct ar *ar)
   int r;
   size_t size;
   off_t  offset;
+  const char *name;
+  int is_symbol_table;
 
   ar->opt_type = ARCHIVE_AR_COMMON;
 
@@ -365,16 +378,26 @@ ar_read_archive(struct archive *archive, struct ar *ar)
     r = archive_read_next_header(archive, &tmp);
     entry = archive_entry_clone(tmp);
 #endif
+    is_symbol_table = 0;
 
 
     if(r == ARCHIVE_OK || r == ARCHIVE_WARN)
     {
+      name = archive_entry_pathname(entry);
       /* Filename of // means it has a GNU style string *
        * table                                          */
-      if(!strcmp(archive_entry_pathname(entry),"//"))
+      if(!strcmp(name, "//"))
       {
         ar->opt_type = ARCHIVE_AR_GNU;
         continue;
+      }
+      
+      if(!strcmp(name, "/"))
+      {
+        if(ar->opt_symbols == NULL)
+          continue;
+        archive_entry_copy_pathname(entry, SvPV_nolen(ar->opt_symbols));
+        is_symbol_table = 1;
       }
 
       /* Otherwise rely on libarchive to determine *
@@ -414,6 +437,7 @@ ar_read_archive(struct archive *archive, struct ar *ar)
     Newx(next->data, next->data_size, char);
 
     r = archive_read_data(archive, (void*)next->data, next->data_size);
+    next->is_symbol_table = is_symbol_table;
 
     if(r == ARCHIVE_WARN)
     {
@@ -453,6 +477,7 @@ _new()
     self->callback       = NULL;
     self->error          = NULL;
     self->longmess       = NULL;
+    self->opt_symbols    = NULL;
     self->opt_warn       = 0;
     self->opt_chmod      = 1;  /* ignored */
     self->opt_same_perms = 1;  /* different: pp version this is true for root only */
@@ -466,18 +491,20 @@ int
 set_opt(self, name, value)
     struct ar *self
     const char *name
-    int value
+    SV *value
   CODE:
     if(!strcmp(name, "warn"))
-      RETVAL = self->opt_warn = value;
+      RETVAL = self->opt_warn = SvIV(value);
     else if(!strcmp(name, "chmod"))
-      RETVAL = self->opt_chmod = value;
+      RETVAL = self->opt_chmod = SvIV(value);
     else if(!strcmp(name, "same_perms"))
-      RETVAL = self->opt_same_perms = value;
+      RETVAL = self->opt_same_perms = SvIV(value);
     else if(!strcmp(name, "chown"))
-      RETVAL = self->opt_chown = value;
+      RETVAL = self->opt_chown = SvIV(value);
     else if(!strcmp(name, "type"))
-      RETVAL = self->opt_type = value;
+      RETVAL = self->opt_type = SvIV(value);
+    else if(!strcmp(name, "symbols"))
+      self->opt_symbols = SvREFCNT_inc(value);  /*  TODO: make set_opt return void; maybe */
     else
       warn("unknown or unsupported option %s", name);
   OUTPUT:
