@@ -42,10 +42,7 @@ similar  circumstances.
 
 The main advantage of [Archive::Ar](https://metacpan.org/pod/Archive::Ar) over this module is that it is 
 written in pure perl, and thus does not require a compiler or 
-libarchive.  The advantage of this module (at least as of this writing) 
-is that it supports GNU (read) and BSD (read and write) extensions for 
-longer member filenames.  As an XS module using libarchive it may also
-be faster.
+libarchive.  As an XS module using libarchive it may be faster.
 
 You may notice that the API to [Archive::Ar::Libarchive](https://metacpan.org/pod/Archive::Ar::Libarchive) and
 [Archive::Ar](https://metacpan.org/pod/Archive::Ar) is similar to [Archive::Tar](https://metacpan.org/pod/Archive::Tar) and this was done
@@ -103,6 +100,14 @@ Assign option `$name` value `$value`.  Supported options include:
 
     Archive type.  May be GNU, BSD or COMMON, or undef if no archive
     has been read.  Defaults to the type of the archive read or `undef`.
+
+- symbols
+
+    Provide a filename for the symbol table, if present.  If set, the
+    symbol table is treated as a file that can be read from or written
+    to an archive.  It is an error if the filename provided matches the
+    name of a file in the archive.  If `undef`, the symbol table is
+    ignored.  Defaults to `undef`.
 
 ## get\_opt
 
