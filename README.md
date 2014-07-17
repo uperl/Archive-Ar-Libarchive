@@ -101,6 +101,14 @@ Assign option `$name` value `$value`.  Supported options include:
     Archive type.  May be GNU, BSD or COMMON, or undef if no archive
     has been read.  Defaults to the type of the archive read or `undef`.
 
+- symbols
+
+    Provide a filename for the symbol table, if present.  If set, the
+    symbol table is treated as a file that can be read from or written
+    to an archive.  It is an error if the filename provided matches the
+    name of a file in the archive.  If `undef`, the symbol table is
+    ignored.  Defaults to `undef`.
+
 ## get\_opt
 
     my $value = $ar->get_opt($name);
