@@ -1,5 +1,7 @@
 struct ar *   T_AR_ARCHIVE
 __LA_INT64_T  T_INT64
+struct aix_big_fl_hdr * T_AIX_BIG_FL_HDR
+struct aix_big_ar_hdr * T_AIX_BIG_AR_HDR
 
 INPUT
 T_AR_ARCHIVE
@@ -7,7 +9,25 @@ T_AR_ARCHIVE
     $var = INT2PTR($type, SvIV((SV *) SvRV($arg)));
   else
     Perl_croak(aTHX_ \"$var is not of type Archive::Ar::Libarchive\");
+
+T_AIX_BIG_FL_HDR
+  if (sv_isobject($arg) && sv_derived_from($arg, \"Archive::Ar::Libarchive::AixBig::fl_hdr\"))
+    $var = INT2PTR($type, SvIV((SV *) SvRV($arg)));
+  else
+    Perl_croak(aTHX_ \"$var is not of type Archive::Ar::Libarchive::AixBig::fl_hdr\");
+
+T_AIX_BIG_AR_HDR
+  if (sv_isobject($arg) && sv_derived_from($arg, \"Archive::Ar::Libarchive::AixBig::ar_hdr\"))
+    $var = INT2PTR($type, SvIV((SV *) SvRV($arg)));
+  else
+    Perl_croak(aTHX_ \"$var is not of type Archive::Ar::Libarchive::AixBig::ar_hdr\");
                                         
 OUTPUT
 T_AR_ARCHIVE
   sv_setref_pv($arg, \"Archive::Ar::Libarchive\", (void *) $var);
+
+T_AIX_BIG_FL_HDR
+  sv_setref_pv($arg, \"Archive::Ar::Libarchive::AixBig::fl_hdr\", (void *) $var);
+
+T_AIX_BIG_AR_HDR
+  $var != NULL ? sv_setref_pv($arg, \"Archive::Ar::Libarchive::AixBig::ar_hdr\", (void *) $var) : sv_setsv((SV*)$arg, &PL_sv_undef);

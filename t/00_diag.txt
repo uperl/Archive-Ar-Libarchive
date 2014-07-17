@@ -1,6 +1,7 @@
 Alien::Libarchive
 ExtUtils::CChecker
 File::Basename
+FindBin
 Math::Int64
 Module::Build
 Test::MockObject

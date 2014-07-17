@@ -7,8 +7,10 @@
 #define MATH_INT64_NATIVE_IF_AVAILABLE
 #include "perl_math_int64.h"
 
+#include <stdlib.h>
 #include <archive.h>
 #include <archive_entry.h>
+#include <ar_aix_big.h>
 
 #if ARCHIVE_VERSION_NUMBER < 3000000
 # if !defined(__LA_INT64_T)
@@ -955,5 +957,111 @@ const char *
 _libarchive_version()
   CODE:
     RETVAL = ARCHIVE_VERSION_STRING;
+  OUTPUT:
+    RETVAL
+
+MODULE = Archive::Ar::Libarchive   PACKAGE = Archive::Ar::Libarchive::AixBig
+
+struct aix_big_fl_hdr *
+get_fl_hdr(ar)
+    SV *ar
+  CODE:
+    if(sv_len(ar) < sizeof(struct aix_big_fl_hdr))
+      croak("archive does not include a full header");
+    RETVAL = (struct aix_big_fl_hdr *) SvPV_nolen(ar);
+  OUTPUT:
+    RETVAL
+
+MODULE = Archive::Ar::Libarchive   PACKAGE = Archive::Ar::Libarchive::AixBig::fl_hdr
+
+struct aix_big_ar_hdr *
+first(self, sv)
+    struct aix_big_fl_hdr *self
+    SV *sv
+  CODE:
+    const char *bytes = (const char *) self;
+    size_t offset;
+    offset = atoi(self->fl_fstmoff);
+    if(offset > sv_len(sv))
+      croak("member offset beyond end of file");
+    if(offset == 0)
+      RETVAL = NULL;
+    else
+      RETVAL = (struct aix_big_ar_hdr *) &bytes[offset];
+  OUTPUT:
+    RETVAL
+
+MODULE = Archive::Ar::Libarchive   PACKAGE = Archive::Ar::Libarchive::AixBig::ar_hdr
+
+size_t
+ar_size(self)
+    struct aix_big_ar_hdr *self
+  CODE:
+    RETVAL = atoi(self->ar_size);
+  OUTPUT:
+    RETVAL
+
+struct aix_big_ar_hdr *
+next(self, sv, ar)
+    struct aix_big_ar_hdr *self
+    SV *sv
+    struct aix_big_fl_hdr *ar
+  CODE:
+    struct aix_big_ar_hdr *next;
+    size_t offset;
+    const char *bytes = (const char *) ar;
+    offset = atoi(self->ar_nxtmem);
+    if(offset > sv_len(sv))
+      croak("member offset beyond end of file");
+    if(offset == 0 || (self->_ar_name.ar_name[0] == 96 && self->_ar_name.ar_name[1] == 10))
+      RETVAL = NULL;
+    else
+    {
+      next = (struct aix_big_ar_hdr *) &bytes[offset];
+      if(next->_ar_name.ar_name[0] == 96 && next->_ar_name.ar_name[1] == 10)
+        RETVAL = NULL;
+      else
+        RETVAL = (struct aix_big_ar_hdr *) &bytes[offset];
+    }
+  OUTPUT:
+    RETVAL
+
+unsigned long
+ar_date(self)
+    struct aix_big_ar_hdr *self
+  CODE:
+    RETVAL = atoi(self->ar_date);
+  OUTPUT:
+    RETVAL
+
+unsigned long
+ar_uid(self)
+    struct aix_big_ar_hdr *self
+  CODE:
+    RETVAL = atoi(self->ar_uid);
+  OUTPUT:
+    RETVAL
+
+unsigned long
+ar_gid(self)
+    struct aix_big_ar_hdr *self
+  CODE:
+    RETVAL = atoi(self->ar_gid);
+  OUTPUT:
+    RETVAL
+
+unsigned long
+ar_mode(self)
+    struct aix_big_ar_hdr *self
+  CODE:
+    RETVAL = strtol(self->ar_mode, NULL, 8);
+  OUTPUT:
+    REVAL
+
+const char *
+ar_name(self)
+    struct aix_big_ar_hdr *self
+  CODE:
+    RETVAL = (const char *)self->_ar_name.ar_name;
   OUTPUT:
     RETVAL

@@ -22,3 +22,4 @@ pod_coverage:
     - Archive::Ar::Libarchive#DEBUG
     - Archive::Ar::Libarchive#set_output_format_bsd
     - Archive::Ar::Libarchive#set_output_format_svr4
+    - Archive::Ar::Libarchive::AixBig
