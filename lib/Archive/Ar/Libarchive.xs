@@ -745,6 +745,9 @@ _add_data(self,filename,data,uid,gid,date,mode)
     archive_entry_set_mode((*entry)->entry, mode);
     
     (*entry)->next          = NULL;
+    (*entry)->is_symbol_table = 0;
+    if(self->opt_symbols != NULL && !strcmp(SvPV_nolen(self->opt_symbols), filename))
+      (*entry)->is_symbol_table = 1;
     
     buffer = SvPV(data, (*entry)->data_size);
     archive_entry_set_size((*entry)->entry, (*entry)->data_size);

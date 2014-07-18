@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  - ensure that is_symbol_table is set when adding file to an
+    archive.  This fixes a intermitent bug introduced in 2.04
 
 2.04      2014-07-17 12:55:50 -0400
   - added "symbols" option
