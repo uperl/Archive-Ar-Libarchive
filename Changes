@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  - tech preview: support for AIX (big) ar archive files (read only)
+    set $Archive::Ar::Libarchive::enable_aix = 1 to enable
 
 2.05      2014-07-18 07:43:54 -0400
   - ensure that is_symbol_table is set when adding file to an

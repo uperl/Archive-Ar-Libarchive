@@ -40,12 +40,16 @@ sub read
   my $ar_hdr = $fl_hdr->first($data);
   while($ar_hdr)
   {
-    $ar->add_data($ar_hdr->ar_name, "TODO", {
-      uid  => $ar_hdr->ar_uid,
-      gid  => $ar_hdr->ar_gid,
-      date => $ar_hdr->ar_date,
-      mode => $ar_hdr->ar_mode,
-    });
+    my $name = $ar_hdr->ar_name;
+    unless($name eq '')
+    {
+      $ar->add_data($name, $ar_hdr->data, {
+        uid  => $ar_hdr->ar_uid,
+        gid  => $ar_hdr->ar_gid,
+        date => $ar_hdr->ar_date,
+        mode => $ar_hdr->ar_mode,
+      });
+    }
     $ar_hdr = $ar_hdr->next($data, $fl_hdr);
   }
   return length $data;
