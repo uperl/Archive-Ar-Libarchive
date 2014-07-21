@@ -2,6 +2,9 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+2.05_02   2014-07-20 20:44:21 -0400
+  - identical to previous release
+
 2.05_01   2014-07-18 14:36:44 -0400
   - tech preview: support for AIX (big) ar archive files (read only)
     set $Archive::Ar::Libarchive::enable_aix = 1 to enable
