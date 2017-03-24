@@ -24,12 +24,10 @@
 # endif
 #endif
 
-#define ARCHIVE_AR_UNDEF     0
-#define ARCHIVE_AR_COMMON    1
-#define ARCHIVE_AR_BSD       2
-#define ARCHIVE_AR_GNU       3
-#define ARCHIVE_AR_AIX_BIG   4
-#define ARCHIVE_AR_AIX_SMALL 5
+#define ARCHIVE_AR_UNDEF   0
+#define ARCHIVE_AR_COMMON  1
+#define ARCHIVE_AR_BSD     2
+#define ARCHIVE_AR_GNU     3
 
 #if ARCHIVE_VERSION_NUMBER < 3000000
 #define archive_write_free(archive) archive_write_finish(archive)
@@ -55,7 +53,7 @@ struct ar {
   unsigned int opt_chmod      : 1;
   unsigned int opt_same_perms : 1;
   unsigned int opt_chown      : 1;
-  unsigned int opt_type       : 3;
+  unsigned int opt_type       : 2;
  
   SV *error;
   SV *longmess;
@@ -560,6 +558,38 @@ error(self, ...)
       RETVAL = SvREFCNT_inc(self->longmess);
     else
       RETVAL = SvREFCNT_inc(self->error);
+  OUTPUT:
+    RETVAL
+
+int
+_read_from_filename(self, filename)
+    struct ar *self
+    const char *filename
+  CODE:
+    struct archive *archive;
+    int r;
+    
+    ar_reset(self);
+    archive = archive_read_new();
+    archive_read_support_format_ar(archive);
+    
+    r = archive_read_open_filename(archive, filename, 1024);
+    if(r == ARCHIVE_OK || r == ARCHIVE_WARN)
+    {
+      if(r == ARCHIVE_WARN)
+        _error(self, archive_error_string(archive));
+      RETVAL = ar_read_archive(archive, self);
+    }
+    else
+    {
+      _error(self,archive_error_string(archive));
+      RETVAL = 0;
+    }
+#if ARCHIVE_VERSION_NUMBER < 3000000
+    archive_read_finish(archive);
+#else
+    archive_read_free(archive);
+#endif
   OUTPUT:
     RETVAL
 
