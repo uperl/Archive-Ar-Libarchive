@@ -1017,10 +1017,16 @@ next(self, sv, ar)
     offset = atoi(self->ar_nxtmem);
     if(offset > sv_len(sv))
       croak("member offset beyond end of file");
-    if(offset == 0)
+    if(offset == 0 || (self->_ar_name.ar_name[0] == 96 && self->_ar_name.ar_name[1] == 10))
       RETVAL = NULL;
     else
-      RETVAL = (struct aix_big_ar_hdr *) &bytes[offset];
+    {
+      next = (struct aix_big_ar_hdr *) &bytes[offset];
+      if(next->_ar_name.ar_name[0] == 96 && next->_ar_name.ar_name[1] == 10)
+        RETVAL = NULL;
+      else
+        RETVAL = (struct aix_big_ar_hdr *) &bytes[offset];
+    }
   OUTPUT:
     RETVAL
 
@@ -1054,37 +1060,18 @@ ar_mode(self)
   CODE:
     RETVAL = strtol(self->ar_mode, NULL, 8);
   OUTPUT:
-    RETVAL
+    REVAL
 
-SV *
+const char *
 ar_name(self)
     struct aix_big_ar_hdr *self
   CODE:
-    size_t length;
-    length = atoi(self->ar_namelen);
-    if(length > 255)
-      croak("filename too long");
     /*
-     * TODO check for out of bound offsets
-     * (here and elsewhere)
+     * TODO: I don't think the filename has to be '\0'
+     *       terminated, so we should honor either
+     *       "\0" or "`\n" as terminators
      */
-    RETVAL = newSVpvn((const char *)self->_ar_name.ar_name, length);
+    RETVAL = (const char *)self->_ar_name.ar_name;
   OUTPUT:
     RETVAL
 
-SV *
-data(self)
-    struct aix_big_ar_hdr *self
-  CODE:
-    size_t name_length;
-    size_t length;
-    size_t offset;
-    const char *bytes = (const char *) self;
-    name_length = atoi(self->ar_namelen);
-    length = atoi(self->ar_size);
-    offset = sizeof(struct aix_big_ar_hdr) + name_length;
-    if(offset % 2)
-      offset++;
-    RETVAL = newSVpvn(&bytes[offset], length);
-  OUTPUT:
-    RETVAL

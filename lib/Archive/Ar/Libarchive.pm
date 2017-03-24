@@ -209,12 +209,9 @@ sub read
   {
     if($sig eq "<bigaf>\n")
     {
+      require Archive::Ar::Libarchive::AixBig;
       $self->set_opt(type => AIX_BIG);
-      if($Archive::Ar::Libarchive::enable_aix)
-      {
-        require Archive::Ar::Libarchive::AixBig;
-        return Archive::Ar::Libarchive::AixBig::read($self, $sig, $fh);
-      }
+      return Archive::Ar::Libarchive::AixBig::read($self, $sig, $fh);
     }
     elsif($sig eq "<aiaff>\n")
     {
