@@ -1007,10 +1007,6 @@ next(self, sv, ar)
     SV *sv
     struct aix_big_fl_hdr *ar
   CODE:
-    /*
-     * TODO: this should be unified with the interface of first above
-     *        maybe there should be an iterator or something
-     */
     struct aix_big_ar_hdr *next;
     size_t offset;
     const char *bytes = (const char *) ar;
@@ -1066,12 +1062,6 @@ const char *
 ar_name(self)
     struct aix_big_ar_hdr *self
   CODE:
-    /*
-     * TODO: I don't think the filename has to be '\0'
-     *       terminated, so we should honor either
-     *       "\0" or "`\n" as terminators
-     */
     RETVAL = (const char *)self->_ar_name.ar_name;
   OUTPUT:
     RETVAL
-
