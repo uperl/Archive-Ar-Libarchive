@@ -12,8 +12,6 @@ my $post_diag;
 $modules{$_} = $_ for qw(
   Alien::Libarchive
   ExtUtils::CChecker
-  File::Basename
-  FindBin
   Math::Int64
   Module::Build
   Test::MockObject
