@@ -323,7 +323,6 @@ and stack trace.
 
 # SEE ALSO
 
-- [Alien::Libarchive](https://metacpan.org/pod/Alien::Libarchive)
 - [Archive::Ar](https://metacpan.org/pod/Archive::Ar)
 
 # AUTHOR

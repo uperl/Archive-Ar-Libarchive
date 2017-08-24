@@ -12,12 +12,6 @@ use File::Basename ();
 # ABSTRACT: Interface for manipulating ar archives with libarchive
 # VERSION
 
-unless($^O eq 'MSWin32')
-{
-  require Alien::Libarchive;
-  Alien::Libarchive->import;
-}
-
 require XSLoader;
 XSLoader::load('Archive::Ar::Libarchive', $VERSION);
 
@@ -590,8 +584,6 @@ sub _error
 =head1 SEE ALSO
 
 =over 4
-
-=item L<Alien::Libarchive>
 
 =item L<Archive::Ar>
 
