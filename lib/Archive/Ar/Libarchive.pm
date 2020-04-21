@@ -324,7 +324,7 @@ array.
 sub list_files
 {
   my $list = shift->_list_files;
-  wantarray ? @$list : $list;
+  wantarray ? @$list : $list; ## no critic (Freenode::Wantarray)
 }
 
 =head2 add_files
@@ -415,7 +415,7 @@ sub add_data
 {
   my($self, $filename, $data, $filedata) = @_;
   $filedata ||= {};
-  $self->_add_data($filename, $data, $filedata->{uid} || 0, $filedata->{gid} || 0, $filedata->{date} || time, $filedata->{mode} || 0100644);
+  $self->_add_data($filename, $data, $filedata->{uid} || 0, $filedata->{gid} || 0, $filedata->{date} || time, $filedata->{mode} || oct(100644));
   use bytes;
   length $data;
 }
