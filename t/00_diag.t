@@ -14,8 +14,8 @@ $modules{$_} = $_ for qw(
   Alien::Libarchive
   Alien::Libarchive3
   ExtUtils::CChecker
+  ExtUtils::MakeMaker
   Math::Int64
-  Module::Build
   Test::MockObject
   Test::More
 );

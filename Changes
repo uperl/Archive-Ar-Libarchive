@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  - Switch to EUMM for installer.
 
 2.07      2017-08-24 08:22:33 -0400
   - Switch to Alien::Libarchive3
