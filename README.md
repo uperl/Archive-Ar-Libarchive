@@ -12,7 +12,7 @@ my $ar = Archive::Ar->new('libfoo.a');
 $ar->add_data('newfile.txt', 'some contents', { uid => 101, gid => 102 });
 
 $ar->add_files('./bar.tar.gz', 'bat.pl');
- 
+
 $ar->remove('file1', 'file2');
 
 my $content = $ar->get_content('file3')->{data};
@@ -26,28 +26,28 @@ my @file_list = $ar->list_files;
 
 # DESCRIPTION
 
-This module is a XS alternative to [Archive::Ar](https://metacpan.org/pod/Archive%3A%3AAr) that uses libarchive 
+This module is a XS alternative to [Archive::Ar](https://metacpan.org/pod/Archive::Ar) that uses libarchive
 to read and write ar BSD, GNU and common ar archives.
 
-There is no standard for the ar format.  Most modern archives are based 
-on a common format with two extension variants, BSD and GNU.  Other 
-esoteric variants (such as AIX (small), AIX (big) and Coherent) vary 
-significantly from the common format and are not supported.  Debian's 
+There is no standard for the ar format.  Most modern archives are based
+on a common format with two extension variants, BSD and GNU.  Other
+esoteric variants (such as AIX (small), AIX (big) and Coherent) vary
+significantly from the common format and are not supported.  Debian's
 package format (.deb files) use the common format.
 
-The interface attempts to be identical (with a couple of minor 
-extensions) to [Archive::Ar](https://metacpan.org/pod/Archive%3A%3AAr) and the documentation presented here is 
-based on that module. The diagnostic messages issued on error mostly 
-come directly from libarchive, so they will likely not match exactly 
-what [Archive::Ar](https://metacpan.org/pod/Archive%3A%3AAr) would produce, but it should issue a warning under
+The interface attempts to be identical (with a couple of minor
+extensions) to [Archive::Ar](https://metacpan.org/pod/Archive::Ar) and the documentation presented here is
+based on that module. The diagnostic messages issued on error mostly
+come directly from libarchive, so they will likely not match exactly
+what [Archive::Ar](https://metacpan.org/pod/Archive::Ar) would produce, but it should issue a warning under
 similar  circumstances.
 
-The main advantage of [Archive::Ar](https://metacpan.org/pod/Archive%3A%3AAr) over this module is that it is 
-written in pure perl, and thus does not require a compiler or 
+The main advantage of [Archive::Ar](https://metacpan.org/pod/Archive::Ar) over this module is that it is
+written in pure perl, and thus does not require a compiler or
 libarchive.  As an XS module using libarchive it may be faster.
 
-You may notice that the API to [Archive::Ar::Libarchive](https://metacpan.org/pod/Archive%3A%3AAr%3A%3ALibarchive) and
-[Archive::Ar](https://metacpan.org/pod/Archive%3A%3AAr) is similar to [Archive::Tar](https://metacpan.org/pod/Archive%3A%3ATar) and this was done
+You may notice that the API to [Archive::Ar::Libarchive](https://metacpan.org/pod/Archive::Ar::Libarchive) and
+[Archive::Ar](https://metacpan.org/pod/Archive::Ar) is similar to [Archive::Tar](https://metacpan.org/pod/Archive::Tar) and this was done
 intentionally to keep similarity between the Archive::\* modules.
 
 # METHODS
@@ -60,9 +60,9 @@ my $ar = Archive::Ar::Libarchive->new($filename);
 my $ar = Archive::Ar::Libarchive->new($fh);
 ```
 
-Returns a new [Archive::Ar::Libarchive](https://metacpan.org/pod/Archive%3A%3AAr%3A%3ALibarchive) object.  Without a filename or 
-glob, it returns an empty object.  If passed a filename as a scalar or a 
-GLOB, it will attempt to populate from either of those sources.  If it 
+Returns a new [Archive::Ar::Libarchive](https://metacpan.org/pod/Archive::Ar::Libarchive) object.  Without a filename or
+glob, it returns an empty object.  If passed a filename as a scalar or a
+GLOB, it will attempt to populate from either of those sources.  If it
 fails, you will receive `undef`, instead of an object reference.
 
 ## set\_opt
@@ -86,7 +86,7 @@ Assign option `$name` value `$value`.  Supported options include:
     Change the file permissions of files created when extracting.  Default
     is true (non-zero).
 
-    This option is provided only for compatibility with [Archive::Ar](https://metacpan.org/pod/Archive%3A%3AAr).
+    This option is provided only for compatibility with [Archive::Ar](https://metacpan.org/pod/Archive::Ar).
     Libarchive does not provide an equivalent to this option, so setting
     it to false will has no effect.
 
@@ -96,7 +96,7 @@ Assign option `$name` value `$value`.  Supported options include:
     If false, removes setuid bits and applies the user's umask.  Default
     is true.
 
-    In [Archive::Ar](https://metacpan.org/pod/Archive%3A%3AAr) this option is true for root only.
+    In [Archive::Ar](https://metacpan.org/pod/Archive::Ar) this option is true for root only.
 
 - chown
 
@@ -161,10 +161,10 @@ filehandle or IO::Handle object.  Returns the number of bytes read,
 my $br = $ar->read_memory($data);
 ```
 
-This reads information from the first parameter, and attempts to parse 
-and treat it like an ar archive. Like [Archive::Ar::Libarchive#read](https://metacpan.org/pod/Archive%3A%3AAr%3A%3ALibarchive%23read), 
-it will wipe out whatever you have in the object and replace it with the 
-contents of the new archive, even if it fails. Returns the number of 
+This reads information from the first parameter, and attempts to parse
+and treat it like an ar archive. Like [Archive::Ar::Libarchive#read](https://metacpan.org/pod/Archive::Ar::Libarchive#read),
+it will wipe out whatever you have in the object and replace it with the
+contents of the new archive, even if it fails. Returns the number of
 bytes read (processed) if successful, `undef` otherwise.
 
 ## contains\_file
@@ -258,10 +258,10 @@ information is stripped off. Filenames longer than 16 characters are
 truncated when written to disk in the format, so keep that in mind
 when adding files.
 
-Due to the nature of the ar archive format, 
-[Archive::Ar::Libarchive#add\_files](https://metacpan.org/pod/Archive%3A%3AAr%3A%3ALibarchive%23add_files) will store the uid, gid, mode, 
-size, and creation date of the file as returned by 
-[stat](https://metacpan.org/pod/perlfunc%23stat).
+Due to the nature of the ar archive format,
+[Archive::Ar::Libarchive#add\_files](https://metacpan.org/pod/Archive::Ar::Libarchive#add_files) will store the uid, gid, mode,
+size, and creation date of the file as returned by
+[stat](https://metacpan.org/pod/perlfunc#stat).
 
 returns the number of files successfully added, or `undef` on failure.
 
@@ -271,9 +271,9 @@ returns the number of files successfully added, or `undef` on failure.
 my $size = $ar->add_data($filename, $data, $filedata);
 ```
 
-Takes an filename and a set of data to represent it. Unlike 
-[Archive::Ar::Libarchive#add\_files](https://metacpan.org/pod/Archive%3A%3AAr%3A%3ALibarchive%23add_files), 
-[Archive::Ar::Libarchive#add\_data](https://metacpan.org/pod/Archive%3A%3AAr%3A%3ALibarchive%23add_data) is a virtual add, and does not 
+Takes an filename and a set of data to represent it. Unlike
+[Archive::Ar::Libarchive#add\_files](https://metacpan.org/pod/Archive::Ar::Libarchive#add_files),
+[Archive::Ar::Libarchive#add\_data](https://metacpan.org/pod/Archive::Ar::Libarchive#add_data) is a virtual add, and does not
 require data on disk to be present. The data is a hash that looks like:
 
 ```perl
@@ -285,7 +285,7 @@ $filedata = {
 };
 ```
 
-You cannot add\_data over another file however.  This returns the file 
+You cannot add\_data over another file however.  This returns the file
 length in bytes if it is successful, `undef` otherwise.
 
 ## write
@@ -295,10 +295,10 @@ my $content = $ar->write;
 my $size = $ar->write($filename);
 ```
 
-This method will return the data as an .ar archive, or will write to the 
-filename present if specified. If given a filename, 
-[Archive::Ar::Libarchive#write](https://metacpan.org/pod/Archive%3A%3AAr%3A%3ALibarchive%23write) will return the length of the file 
-written, in bytes, or `undef` on failure. If the filename already exists, 
+This method will return the data as an .ar archive, or will write to the
+filename present if specified. If given a filename,
+[Archive::Ar::Libarchive#write](https://metacpan.org/pod/Archive::Ar::Libarchive#write) will return the length of the file
+written, in bytes, or `undef` on failure. If the filename already exists,
 it will overwrite that file.
 
 ## get\_content
@@ -371,7 +371,7 @@ and stack trace.
 
 # SEE ALSO
 
-- [Archive::Ar](https://metacpan.org/pod/Archive%3A%3AAr)
+- [Archive::Ar](https://metacpan.org/pod/Archive::Ar)
 
 # AUTHOR
 
