@@ -2,12 +2,14 @@ package mymm;
 
 use strict;
 use warnings;
-use Alien::Base::Wrapper qw( !export Alien::Libarchive3 );
 use ExtUtils::MakeMaker ();
 
 sub myWriteMakefile
 {
   my %args = @_;
+
+  require Alien::Base::Wrapper;
+  Alien::Base::Wrapper->import(qw( !export Alien::Libarchive3 ));
 
   my %alien = Alien::Base::Wrapper->mm_args;
   $alien{INC} = defined $alien{INC} ? "$alien{INC} -Ixs" : "-Ixs";
