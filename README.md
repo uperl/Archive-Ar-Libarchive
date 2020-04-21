@@ -4,27 +4,29 @@ Interface for manipulating ar archives with libarchive
 
 # SYNOPSIS
 
-    use Archive::Ar::Libarchive;
-    
-    my $ar = Archive::Ar->new('libfoo.a');
-    
-    $ar->add_data('newfile.txt', 'some contents', { uid => 101, gid => 102 });
-    
-    $ar->add_files('./bar.tar.gz', 'bat.pl');
-     
-    $ar->remove('file1', 'file2');
-    
-    my $content = $ar->get_content('file3')->{data};
-    
-    my @files = $ar->list_files;
-    
-    $ar->write('libbar.a');
-    
-    my @file_list = $ar->list_files;
+```perl
+use Archive::Ar::Libarchive;
+
+my $ar = Archive::Ar->new('libfoo.a');
+
+$ar->add_data('newfile.txt', 'some contents', { uid => 101, gid => 102 });
+
+$ar->add_files('./bar.tar.gz', 'bat.pl');
+ 
+$ar->remove('file1', 'file2');
+
+my $content = $ar->get_content('file3')->{data};
+
+my @files = $ar->list_files;
+
+$ar->write('libbar.a');
+
+my @file_list = $ar->list_files;
+```
 
 # DESCRIPTION
 
-This module is a XS alternative to [Archive::Ar](https://metacpan.org/pod/Archive::Ar) that uses libarchive 
+This module is a XS alternative to [Archive::Ar](https://metacpan.org/pod/Archive%3A%3AAr) that uses libarchive 
 to read and write ar BSD, GNU and common ar archives.
 
 There is no standard for the ar format.  Most modern archives are based 
@@ -34,36 +36,40 @@ significantly from the common format and are not supported.  Debian's
 package format (.deb files) use the common format.
 
 The interface attempts to be identical (with a couple of minor 
-extensions) to [Archive::Ar](https://metacpan.org/pod/Archive::Ar) and the documentation presented here is 
+extensions) to [Archive::Ar](https://metacpan.org/pod/Archive%3A%3AAr) and the documentation presented here is 
 based on that module. The diagnostic messages issued on error mostly 
 come directly from libarchive, so they will likely not match exactly 
-what [Archive::Ar](https://metacpan.org/pod/Archive::Ar) would produce, but it should issue a warning under
+what [Archive::Ar](https://metacpan.org/pod/Archive%3A%3AAr) would produce, but it should issue a warning under
 similar  circumstances.
 
-The main advantage of [Archive::Ar](https://metacpan.org/pod/Archive::Ar) over this module is that it is 
+The main advantage of [Archive::Ar](https://metacpan.org/pod/Archive%3A%3AAr) over this module is that it is 
 written in pure perl, and thus does not require a compiler or 
 libarchive.  As an XS module using libarchive it may be faster.
 
-You may notice that the API to [Archive::Ar::Libarchive](https://metacpan.org/pod/Archive::Ar::Libarchive) and
-[Archive::Ar](https://metacpan.org/pod/Archive::Ar) is similar to [Archive::Tar](https://metacpan.org/pod/Archive::Tar) and this was done
+You may notice that the API to [Archive::Ar::Libarchive](https://metacpan.org/pod/Archive%3A%3AAr%3A%3ALibarchive) and
+[Archive::Ar](https://metacpan.org/pod/Archive%3A%3AAr) is similar to [Archive::Tar](https://metacpan.org/pod/Archive%3A%3ATar) and this was done
 intentionally to keep similarity between the Archive::\* modules.
 
 # METHODS
 
 ## new
 
-    my $ar = Archive::Ar::Libarchive->new;
-    my $ar = Archive::Ar::Libarchive->new($filename);
-    my $ar = Archive::Ar::Libarchive->new($fh);
+```perl
+my $ar = Archive::Ar::Libarchive->new;
+my $ar = Archive::Ar::Libarchive->new($filename);
+my $ar = Archive::Ar::Libarchive->new($fh);
+```
 
-Returns a new [Archive::Ar::Libarchive](https://metacpan.org/pod/Archive::Ar::Libarchive) object.  Without a filename or 
+Returns a new [Archive::Ar::Libarchive](https://metacpan.org/pod/Archive%3A%3AAr%3A%3ALibarchive) object.  Without a filename or 
 glob, it returns an empty object.  If passed a filename as a scalar or a 
 GLOB, it will attempt to populate from either of those sources.  If it 
 fails, you will receive `undef`, instead of an object reference.
 
 ## set\_opt
 
-    $ar->set_opt($name, $value);
+```
+$ar->set_opt($name, $value);
+```
 
 Assign option `$name` value `$value`.  Supported options include:
 
@@ -80,7 +86,7 @@ Assign option `$name` value `$value`.  Supported options include:
     Change the file permissions of files created when extracting.  Default
     is true (non-zero).
 
-    This option is provided only for compatibility with [Archive::Ar](https://metacpan.org/pod/Archive::Ar).
+    This option is provided only for compatibility with [Archive::Ar](https://metacpan.org/pod/Archive%3A%3AAr).
     Libarchive does not provide an equivalent to this option, so setting
     it to false will has no effect.
 
@@ -90,7 +96,7 @@ Assign option `$name` value `$value`.  Supported options include:
     If false, removes setuid bits and applies the user's umask.  Default
     is true.
 
-    In [Archive::Ar](https://metacpan.org/pod/Archive::Ar) this option is true for root only.
+    In [Archive::Ar](https://metacpan.org/pod/Archive%3A%3AAr) this option is true for root only.
 
 - chown
 
@@ -111,13 +117,17 @@ Assign option `$name` value `$value`.  Supported options include:
 
 ## get\_opt
 
-    my $value = $ar->get_opt($name);
+```perl
+my $value = $ar->get_opt($name);
+```
 
 Returns the value of the option `$name`.
 
 ## type
 
-    my $type = $ar->type;
+```perl
+my $type = $ar->type;
+```
 
 Returns the type of the ar archive.  The type is undefined until an archive
 is loaded.  If the archive displays characteristics of a GNU-style archive,
@@ -127,14 +137,18 @@ characters in length, bsd archives look like the common format.
 
 ## clear
 
-    $ar->clear;
+```
+$ar->clear;
+```
 
 Clears the current in-memory archive.
 
 ## read
 
-    my $br = $ar->read($filename);
-    my $br = $ar->read($fh);
+```perl
+my $br = $ar->read($filename);
+my $br = $ar->read($fh);
+```
 
 This reads a new file into the object, removing any ar archive already
 represented in the object.  The argument may be either a filename,
@@ -143,24 +157,30 @@ filehandle or IO::Handle object.  Returns the number of bytes read,
 
 ## read\_memory
 
-    my $br = $ar->read_memory($data);
+```perl
+my $br = $ar->read_memory($data);
+```
 
 This reads information from the first parameter, and attempts to parse 
-and treat it like an ar archive. Like [Archive::Ar::Libarchive#read](https://metacpan.org/pod/Archive::Ar::Libarchive#read), 
+and treat it like an ar archive. Like [Archive::Ar::Libarchive#read](https://metacpan.org/pod/Archive%3A%3AAr%3A%3ALibarchive%23read), 
 it will wipe out whatever you have in the object and replace it with the 
 contents of the new archive, even if it fails. Returns the number of 
 bytes read (processed) if successful, `undef` otherwise.
 
 ## contains\_file
 
-    my $bool = $ar->contains_file($filename)
+```perl
+my $bool = $ar->contains_file($filename)
+```
 
 Returns true if the archive contains a file with the name `$filename`.
 Returns `undef` otherwise.
 
 ## extract
 
-    $ar->extract;
+```
+$ar->extract;
+```
 
 Extract all files from the archive.  Extracted files are assigned the
 permissions and modification time stored in the archive, and, if possible,
@@ -168,7 +188,9 @@ the user and group ownership.  Returns true on success, `undef` for failure.
 
 ## extract\_file
 
-    $ar->extract_file($filename);
+```
+$ar->extract_file($filename);
+```
 
 Extracts a single file from the archive.  The extracted file is assigned
 the permissions and modification time stored in the archive, and, if
@@ -177,28 +199,36 @@ possible, the user and group ownership.  Returns true on success,
 
 ## rename
 
-    $ar->rename($filename, $newname);
+```
+$ar->rename($filename, $newname);
+```
 
 Changes the name of a file in the in-memory archive.
 
 ## chmod
 
-    $ar->chmod($filename, $mode);
+```
+$ar->chmod($filename, $mode);
+```
 
 Change the permission mode of the member to `$mode`.
 
 ## chown
 
-    $ar->chown($filename, $uid, $gid);
-    $ar->chown($filename, $uid);
+```
+$ar->chown($filename, $uid, $gid);
+$ar->chown($filename, $uid);
+```
 
 Change the ownership of the member to user id `$udi` and (optionally)
 group id `$gid`.  Negative id values are ignored.
 
 ## remove
 
-    my $count = $ar->remove(@pathnames);
-    my $count = $ar->remove(\@pathnames);
+```perl
+my $count = $ar->remove(@pathnames);
+my $count = $ar->remove(\@pathnames);
+```
 
 The remove method takes a filenames as a list or as an arrayref, and removes
 them, one at a time, from the Archive::Ar object.  This returns the number
@@ -206,8 +236,10 @@ of files successfully removed from the archive.
 
 ## list\_files
 
-    my @list = $ar->list_files;
-    my $list = $ar->list_files;
+```perl
+my @list = $ar->list_files;
+my $list = $ar->list_files;
+```
 
 This lists the files contained inside of the archive by filename, as
 an array. If called in a scalar context, returns a reference to an
@@ -215,8 +247,10 @@ array.
 
 ## add\_files
 
-    $ar->add_files(@filenames);
-    $ar->add_files(\@filenames);
+```
+$ar->add_files(@filenames);
+$ar->add_files(\@filenames);
+```
 
 Takes an array or an arrayref of filenames to add to the ar archive,
 in order. The filenames can be paths to files, in which case the path
@@ -225,45 +259,53 @@ truncated when written to disk in the format, so keep that in mind
 when adding files.
 
 Due to the nature of the ar archive format, 
-[Archive::Ar::Libarchive#add\_files](https://metacpan.org/pod/Archive::Ar::Libarchive#add_files) will store the uid, gid, mode, 
+[Archive::Ar::Libarchive#add\_files](https://metacpan.org/pod/Archive%3A%3AAr%3A%3ALibarchive%23add_files) will store the uid, gid, mode, 
 size, and creation date of the file as returned by 
-[stat](https://metacpan.org/pod/perlfunc#stat).
+[stat](https://metacpan.org/pod/perlfunc%23stat).
 
 returns the number of files successfully added, or `undef` on failure.
 
 ## add\_data
 
-    my $size = $ar->add_data($filename, $data, $filedata);
+```perl
+my $size = $ar->add_data($filename, $data, $filedata);
+```
 
 Takes an filename and a set of data to represent it. Unlike 
-[Archive::Ar::Libarchive#add\_files](https://metacpan.org/pod/Archive::Ar::Libarchive#add_files), 
-[Archive::Ar::Libarchive#add\_data](https://metacpan.org/pod/Archive::Ar::Libarchive#add_data) is a virtual add, and does not 
+[Archive::Ar::Libarchive#add\_files](https://metacpan.org/pod/Archive%3A%3AAr%3A%3ALibarchive%23add_files), 
+[Archive::Ar::Libarchive#add\_data](https://metacpan.org/pod/Archive%3A%3AAr%3A%3ALibarchive%23add_data) is a virtual add, and does not 
 require data on disk to be present. The data is a hash that looks like:
 
-    $filedata = {
-      uid  => $uid,   #defaults to zero
-      gid  => $gid,   #defaults to zero
-      date => $date,  #date in epoch seconds. Defaults to now.
-      mode => $mode,  #defaults to 0100644;
-    };
+```perl
+$filedata = {
+  uid  => $uid,   #defaults to zero
+  gid  => $gid,   #defaults to zero
+  date => $date,  #date in epoch seconds. Defaults to now.
+  mode => $mode,  #defaults to 0100644;
+};
+```
 
 You cannot add\_data over another file however.  This returns the file 
 length in bytes if it is successful, `undef` otherwise.
 
 ## write
 
-    my $content = $ar->write;
-    my $size = $ar->write($filename);
+```perl
+my $content = $ar->write;
+my $size = $ar->write($filename);
+```
 
 This method will return the data as an .ar archive, or will write to the 
 filename present if specified. If given a filename, 
-[Archive::Ar::Libarchive#write](https://metacpan.org/pod/Archive::Ar::Libarchive#write) will return the length of the file 
+[Archive::Ar::Libarchive#write](https://metacpan.org/pod/Archive%3A%3AAr%3A%3ALibarchive%23write) will return the length of the file 
 written, in bytes, or `undef` on failure. If the filename already exists, 
 it will overwrite that file.
 
 ## get\_content
 
-    my $hash = get_content($filename);
+```perl
+my $hash = get_content($filename);
+```
 
 This returns a hash with the file content in it, including the data that the
 file would naturally contain.  If the file does not exist or no filename is
@@ -300,14 +342,18 @@ keys:
 
 ## get\_data
 
-    my $data = $ar->get_data($filename);
+```perl
+my $data = $ar->get_data($filename);
+```
 
 Returns a scalar containing the file data of the given archive member.
 On error returns `undef`.
 
 ## get\_handle
 
-    my $handle = $ar->get_handle($filename);
+```perl
+my $handle = $ar->get_handle($filename);
+```
 
 Returns a file handle to the in-memory file data of the given archive
 member.  On error returns `undef`.  This can be useful for unpacking
@@ -315,7 +361,9 @@ nested archives.
 
 ## error
 
-    my $error_string = $ar->error($trace);
+```perl
+my $error_string = $ar->error($trace);
+```
 
 Returns the current error string, which is usually the last error
 reported.  If a true value is provided, returns the error message
@@ -323,7 +371,7 @@ and stack trace.
 
 # SEE ALSO
 
-- [Archive::Ar](https://metacpan.org/pod/Archive::Ar)
+- [Archive::Ar](https://metacpan.org/pod/Archive%3A%3AAr)
 
 # AUTHOR
 
