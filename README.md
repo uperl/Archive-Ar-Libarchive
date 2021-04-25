@@ -1,4 +1,4 @@
-# Archive::Ar::Libarchive [![Build Status](https://secure.travis-ci.org/plicease/Archive-Ar-Libarchive.png)](http://travis-ci.org/plicease/Archive-Ar-Libarchive)
+# Archive::Ar::Libarchive ![linux](https://github.com/uperl/Archive-Ar-Libarchive/workflows/linux/badge.svg)
 
 Interface for manipulating ar archives with libarchive
 
