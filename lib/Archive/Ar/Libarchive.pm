@@ -324,7 +324,7 @@ array.
 sub list_files
 {
   my $list = shift->_list_files;
-  wantarray ? @$list : $list; ## no critic (Freenode::Wantarray)
+  wantarray ? @$list : $list; ## no critic (Community::Wantarray)
 }
 
 =head2 add_files
