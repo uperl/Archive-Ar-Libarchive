@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.10      2026-10-02 03:54:29 -0600
   - Fix write callback return type to match archive_write_callback,
     which fixes compile error on newer clang
 

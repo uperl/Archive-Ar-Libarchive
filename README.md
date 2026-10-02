@@ -1,4 +1,4 @@
-# Archive::Ar::Libarchive ![linux](https://github.com/uperl/Archive-Ar-Libarchive/workflows/linux/badge.svg) ![macos](https://github.com/uperl/Archive-Ar-Libarchive/workflows/macos/badge.svg) ![cygwin](https://github.com/uperl/Archive-Ar-Libarchive/workflows/cygwin/badge.svg)
+# Archive::Ar::Libarchive ![linux](https://github.com/uperl/Archive-Ar-Libarchive/workflows/linux/badge.svg) ![macos](https://github.com/uperl/Archive-Ar-Libarchive/workflows/macos/badge.svg)
 
 Interface for manipulating ar archives with libarchive
 
